@@ -1,0 +1,6 @@
+[0529/141909:INFO:exception_record.cc(518)] [QB]Process ID: 16328 Type: 2
+[0530/101810:INFO:exception_record.cc(518)] [QB]Process ID: 14024 Type: 2
+[0530/105615:INFO:exception_record.cc(518)] [QB]Process ID: 17368 Type: 2
+[0531/085910:WARNING:webmediaplayer_impl.cc(341)] Using MultibufferDataSource
+[0531/085952:ERROR:ffmpeg_demuxer.cc(1510)] media::FFmpegDemuxer::OnReadFrameDone result=-541478725 IsMaxMemoryUsageReached=0
+[0531/204748:INFO:exception_record.cc(518)] [QB]Process ID: 29024 Type: 2
