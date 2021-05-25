@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html>
+<meta  lang="zh-CN" >
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <link rel="icon" href="/img/logo.jpg">
+  <title>theme-kaze demo</title>
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_vpj3dq9ceqa.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  
+  <link rel="preload" href="//cdn.jsdelivr.net/npm/fslightbox@3.1.0/index.min.js" as="script">
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  
+  
+  
+<link rel="stylesheet" href="/css/main.css">
+
+  
+  
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_vpj3dq9ceqa.css">
+
+  
+  
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+
+  
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <div class="wrapper">
+    
+    <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="/img/logo.jpg">
+      
+      <span class="navbar-logo-dsc">theme-kaze demo</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">首页 </a>
+    
+    <a href="/archives" class="navbar-menu-item">归档 </a>
+    
+    <a href="/tags" class="navbar-menu-item">标签 </a>
+    
+    <a href="/categories" class="navbar-menu-item">分类 </a>
+    
+    <a href="/about" class="navbar-menu-item">关于 </a>
+    
+    <a href="/links" class="navbar-menu-item">友链 </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+  </div>
+</nav>
+    
+    <div class="section-wrap">
+      <div class="container">
+        <div class="columns">
+          <main class="main-column">
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      NMT实战理解Attention、Seq2Seq
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2019-07-01T09:25:15.000Z" style="display: flex; align-items: center;">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2019-07-01</span>
+    </time>
+    
+    
+    <span class="dot"></span>
+    <span>3.6k 字</span>
+    
+  </div>
+  
+  <div class="post-meta post-show-meta" style="margin-top: -10px;">
+    <div style="display: flex; align-items: center;">
+      <i class="iconfont icon-biaoqian" style="margin-right: 2px; font-size: 1.15rem;"></i>
+      
+      
+        <a href="/tags/Pytorch、NMT/" class="post-meta-link">Pytorch、NMT</a>
+      
+    </div>
+  </div>
+  
+  </header>
+  <div id="section" class="post-content">
+    <p>最近在看NMT相关的研究，论文很多，每隔几个月就会有新的论文发出来，提出新的模型或者改进，作为小白，我觉得还是先搞懂一些基础理念，试着去实现最简单的模型，练练手。</p>
+<p>本次以Pytorch的<a target="_blank" rel="noopener" href="https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html">Translation with sequence to sequence network and attention</a>为例，介绍一下Seq2Seq和Attention机制，顺便了解一下最简单的NMT模型。好了话不多说，进入正题。</p>
+<h2 id="任务简介"><a href="#任务简介" class="headerlink" title="任务简介"></a>任务简介</h2><p>任务很简单，French -&gt; English ，法语到英语的翻译任务。如下示例，&gt; 表示输入的源语言句子， = 表示目标语言句子，&lt; 表示模型翻译的目标语言结果。</p>
+<span id="more"></span>
+
+<pre class="highlight"><span class="line">[KEY: &gt; input, = target, &lt; output]</span><br><span class="line"></span><br><span class="line">&gt; il est en train de peindre un tableau .</span><br><span class="line">= he is painting a picture .</span><br><span class="line">&lt; he is painting a picture .</span><br><span class="line"></span><br><span class="line">&gt; pourquoi ne pas essayer ce vin delicieux ?</span><br><span class="line">= why not try that delicious wine ?</span><br><span class="line">&lt; why not try that delicious wine ?</span><br><span class="line"></span><br><span class="line">&gt; elle n est pas poete mais romanciere .</span><br><span class="line">= she is not a poet but a novelist .</span><br><span class="line">&lt; she not not a poet but a novelist .</span><br><span class="line"></span><br><span class="line">&gt; vous etes trop maigre .</span><br><span class="line">= you re too skinny .</span><br><span class="line">&lt; you re all alone .</span><br></pre>
+
+<p>本文的 seq2seq network 参考论文是谷歌发表于NIPS 2014的 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1409.3215">Sequence to Sequence Learning with Neural Networks</a>。整体架构如下图所示：</p>
+<p><img src="NMT%E5%AE%9E%E6%88%98%E7%90%86%E8%A7%A3Attention%E3%80%81Seq2Seq%5Cseq2seq.png" alt="Seq2Seq" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="NMT%E5%AE%9E%E6%88%98%E7%90%86%E8%A7%A3Attention%E3%80%81Seq2Seq%5Cseq2seq.png" class="lozad post-image"></p>
+<p>输入是一个法语单词序列，最后增加一个&lt;EOS&gt;表示句子结尾(End of Sentence)，然后将单词转为词汇表中该单词对应的编号，依次喂给Encoder，Encoder内部有一个GRU（就是RNN的一种变体）的结构，循环接收输入，最后遇到&lt;EOS&gt;结束，将Encoder的最后一个输出向量作为Decoder的输入，在Decoder端，将目标语言序列(在最前面加一个&lt;SOS&gt;符号表示句子开头 start of sentence)依次喂给Decoder，Decoder依次输出”the cat is black”，最后结束。</p>
+<p>这种传统的Encoder Decoder 框架，在解码时仅仅依赖Encoder生成的固定长度的向量表示，当输入序列比较长时，性能很差，于是就有人提出Attention机制进行优化。本文的Attention版本参考论文是Bahdanau发表于ICLR 2015的 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1409.0473">Neural Machine Translation by Jointly Learning to Align and Translate</a>。</p>
+<p>关于Attention的本质，<a target="_blank" rel="noopener" href="https://blog.csdn.net/malefactor/article/details/78767781">张俊林博客</a>里有很详细的介绍，大意就是模型在Decoder端解码的时候，Encoder端的输入序列各个单词对其影响程度是不同的。举例来说，比如输入的是英文句子：Tom chase Jerry，Encoder-Decoder框架逐步生成中文单词：“汤姆”，“追逐”，“杰瑞”。在翻译“杰瑞”这个中文单词的时候，显然“Jerry”对于翻译成“杰瑞”更重要，但是传统模型是无法体现这一点的，这就是引入注意力机制的原因。本文将着重从代码层面来分析理解Attention。</p>
+<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><p>首先第一步，导入依赖库，主要是torch相关的库，因为涉及法语的一些起码字符，引入了unicodedata这个库：</p>
+<pre class="highlight"><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> unicode_literals, print_function, division</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> unicodedata</span><br><span class="line"><span class="keyword">from</span> io <span class="keyword">import</span> <span class="built_in">open</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"><span class="keyword">import</span> torch.nn.functional <span class="keyword">as</span> F</span><br><span class="line"><span class="keyword">from</span> torch <span class="keyword">import</span> optim</span><br></pre>
+
+<p><strong>数据预处理相关</strong></p>
+<p>语言类，很常规的套路，其实就是为了构建一个语言的词汇表，word2index用来将单词转成对应的编号，作为模型的输入，index2word是将模型输出的标号转为词汇表中对应的单词，SOS和EOS是特殊的两个符号，表示句子开始和结尾，n_words表示词汇表的大小。</p>
+<pre class="highlight"><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Lang</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, name</span>):</span></span><br><span class="line">        self.name = name</span><br><span class="line">        self.word2index = &#123;&#125;</span><br><span class="line">        self.word2count = &#123;&#125;</span><br><span class="line">        self.index2word = &#123;<span class="number">0</span>: <span class="string">&quot;SOS&quot;</span>, <span class="number">1</span>: <span class="string">&quot;EOS&quot;</span>&#125;</span><br><span class="line">        self.n_words = <span class="number">2</span>  <span class="comment"># Count SOS and EOS</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">addSentence</span>(<span class="params">self, sentence</span>):</span></span><br><span class="line">        <span class="keyword">for</span> word <span class="keyword">in</span> sentence.split(<span class="string">&#x27; &#x27;</span>):</span><br><span class="line">            self.addWord(word)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">addWord</span>(<span class="params">self, word</span>):</span></span><br><span class="line">        <span class="keyword">if</span> word <span class="keyword">not</span> <span class="keyword">in</span> self.word2index:</span><br><span class="line">            self.word2index[word] = self.n_words</span><br><span class="line">            self.word2count[word] = <span class="number">1</span></span><br><span class="line">            self.index2word[self.n_words] = word</span><br><span class="line">            self.n_words += <span class="number">1</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            self.word2count[word] += <span class="number">1</span></span><br></pre>
+
+<p>特殊字符转码，具体细节没怎么研究，我就是用了几个法语的句子做了单元测试，看了一下输出，大概功能就是将法语里那些àè这类长得像英文字母的，转成正常的英文字母。</p>
+<pre class="highlight"><span class="line"><span class="comment"># Turn a Unicode string to plain ASCII, thanks to</span></span><br><span class="line"><span class="comment"># https://stackoverflow.com/a/518232/2809427</span></span><br><span class="line"><span class="comment"># 将 àè等这种字符转成ae正常的字母</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">unicodeToAscii</span>(<span class="params">s</span>):</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;&#x27;</span>.join(</span><br><span class="line">        c <span class="keyword">for</span> c <span class="keyword">in</span> unicodedata.normalize(<span class="string">&#x27;NFD&#x27;</span>, s)</span><br><span class="line">        <span class="keyword">if</span> unicodedata.category(c) != <span class="string">&#x27;Mn&#x27;</span></span><br><span class="line">    )</span><br></pre>
+
+<p>剔除掉乱七八糟的字符，留下的单词或符号中间以空格分隔。这两正则表达式，我刚开始也很懵，把它们单拎出来做单元测试，就明白每个实现了什么功能了，这个方法是我用来理解复杂的系统或代码结构的绝招，俗称拆轮子。</p>
+<pre class="highlight"><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">normalizeString</span>(<span class="params">s</span>):</span></span><br><span class="line">    s = unicodeToAscii(s.lower().strip())</span><br><span class="line">    <span class="comment"># 给. ! ? 前面加空格</span></span><br><span class="line">    s = re.sub(<span class="string">r&quot;([.!?])&quot;</span>, <span class="string">r&quot; \1&quot;</span>, s)</span><br><span class="line">    <span class="comment"># 对于任何非a-zA-Z.!?开头的一个或多个连续字符，都替换成空格</span></span><br><span class="line">    s = re.sub(<span class="string">r&quot;[^a-zA-Z.!?]+&quot;</span>, <span class="string">r&quot; &quot;</span>, s)</span><br><span class="line">    <span class="keyword">return</span> s</span><br></pre>
+
+<p>读取数据，下载地址在<a target="_blank" rel="noopener" href="https://download.pytorch.org/tutorial/data.zip">这里</a>。原始数据格式是每行左边是英语，右边是法语，本文是法语到英语的翻译任务，所以需要反过来，即reverse=True。将读取的语料对放在pairs里返回。</p>
+<pre class="highlight"><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">readLangs</span>(<span class="params">lang1, lang2, reverse=<span class="literal">False</span></span>):</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Reading lines...&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Read the file and split into lines</span></span><br><span class="line">    lines = <span class="built_in">open</span>(<span class="string">&#x27;data/%s-%s.txt&#x27;</span> % (lang1, lang2), encoding=<span class="string">&#x27;utf-8&#x27;</span>).read().strip().split(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Split every line into pairs and normalize</span></span><br><span class="line">    pairs = [[normalizeString(s) <span class="keyword">for</span> s <span class="keyword">in</span> l.split(<span class="string">&#x27;\t&#x27;</span>)] <span class="keyword">for</span> l <span class="keyword">in</span> lines]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Reverse pairs, make Lang instances</span></span><br><span class="line">    <span class="keyword">if</span> reverse:</span><br><span class="line">        pairs = [<span class="built_in">list</span>(<span class="built_in">reversed</span>(p)) <span class="keyword">for</span> p <span class="keyword">in</span> pairs]</span><br><span class="line">        input_lang = Lang(lang2)</span><br><span class="line">        output_lang = Lang(lang1)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        input_lang = Lang(lang1)</span><br><span class="line">        output_lang = Lang(lang2)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> input_lang, output_lang, pairs</span><br></pre>
+
+<p>代码中一些常量解释：</p>
+<pre class="highlight"><span class="line"><span class="comment"># &lt;SOS&gt;和&lt;EOS&gt;在词汇表中的编码分别是0和1</span></span><br><span class="line">SOS_token = <span class="number">0</span></span><br><span class="line">EOS_token = <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 从语料文件里，过滤出长度小于10的句子，</span></span><br><span class="line"><span class="comment"># 并且英语句子以en_prefixes为前缀的才留下，</span></span><br><span class="line"><span class="comment"># 作为本次任务的数据集</span></span><br><span class="line">MAX_LENGTH = <span class="number">10</span></span><br><span class="line"></span><br><span class="line">eng_prefixes = (</span><br><span class="line">    <span class="string">&quot;i am &quot;</span>, <span class="string">&quot;i m &quot;</span>,</span><br><span class="line">    <span class="string">&quot;he is&quot;</span>, <span class="string">&quot;he s &quot;</span>,</span><br><span class="line">    <span class="string">&quot;she is&quot;</span>, <span class="string">&quot;she s &quot;</span>,</span><br><span class="line">    <span class="string">&quot;you are&quot;</span>, <span class="string">&quot;you re &quot;</span>,</span><br><span class="line">    <span class="string">&quot;we are&quot;</span>, <span class="string">&quot;we re &quot;</span>,</span><br><span class="line">    <span class="string">&quot;they are&quot;</span>, <span class="string">&quot;they re &quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 随机概率值，随机选择是用target的序列</span></span><br><span class="line"><span class="comment"># 作为decoder的输入，还是用decoder上一个输出作为当前的输入</span></span><br><span class="line">teacher_forcing_ratio = <span class="number">0.5</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 隐藏层的大小，也即词向量的维度</span></span><br><span class="line">hidden_size = <span class="number">256</span></span><br></pre>
+
+<p>过滤条件和过滤操作：</p>
+<pre class="highlight"><span class="line"><span class="comment"># 只保留eng和fre长度都小于10，并且英语以eng_prefixes这些前缀开头的语料对</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">filterPair</span>(<span class="params">p</span>):</span></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">len</span>(p[<span class="number">0</span>].split(<span class="string">&#x27; &#x27;</span>)) &lt; MAX_LENGTH <span class="keyword">and</span> <span class="built_in">len</span>(p[<span class="number">1</span>].split(<span class="string">&#x27; &#x27;</span>)) &lt; MAX_LENGTH <span class="keyword">and</span> p[<span class="number">1</span>].startswith(eng_prefixes)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">filterPairs</span>(<span class="params">pairs</span>):</span></span><br><span class="line">    <span class="keyword">return</span> [pair <span class="keyword">for</span> pair <span class="keyword">in</span> pairs <span class="keyword">if</span> filterPair(pair)]</span><br></pre>
+
+<p>准备数据：</p>
+<pre class="highlight"><span class="line"><span class="comment"># 原始语料有 13 5842条记录</span></span><br><span class="line"><span class="comment"># 经过过滤之后，剩下1 0599条平行语料对</span></span><br><span class="line"><span class="comment"># 词汇表大小：</span></span><br><span class="line"><span class="comment"># fra 4345</span></span><br><span class="line"><span class="comment"># eng 2803</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">prepareData</span>(<span class="params">lang1, lang2, reverse=<span class="literal">False</span></span>):</span></span><br><span class="line">    input_lang, output_lang, pairs = readLangs(lang1, lang2, reverse)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Read %s sentence pairs&quot;</span> % <span class="built_in">len</span>(pairs))</span><br><span class="line">    pairs = filterPairs(pairs)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Trimmed to %s sentence pairs&quot;</span> % <span class="built_in">len</span>(pairs))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Counting words...&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> pair <span class="keyword">in</span> pairs:</span><br><span class="line">        input_lang.addSentence(pair[<span class="number">0</span>])</span><br><span class="line">        output_lang.addSentence(pair[<span class="number">1</span>])</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Counted words:&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(input_lang.name, input_lang.n_words)</span><br><span class="line">    <span class="built_in">print</span>(output_lang.name, output_lang.n_words)</span><br><span class="line">    <span class="keyword">return</span> input_lang, output_lang, pairs</span><br></pre>
+
+
+
+<p><strong>模型部分</strong></p>
+<p>终于进入正题了。先看看Encoder。结构很简单，一个Embedding，一个GRU。模型数据流动看模型结构图就很好理解，具体到代码细节，就得好好捋清楚每个变量的shape，以及怎么转换的。经常在forward函数里看到各种变换方法，如view(1, 1, -1)、sequeeze、unsqueeze，还有各种矩阵乘法运算，如torch.bmm，sotmax归一化运算F.Softmax(matrix, dim=1)各种，都需要一个个拎出来，写点小例子测试一下，了解其参数含义，实现的功能。说白了，就是哪个轮子不太明白，就把它拆下来研究。</p>
+<pre class="highlight"><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">EncoderRNN</span>(<span class="params">nn.Module</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, input_size, hidden_size</span>):</span></span><br><span class="line">        <span class="built_in">super</span>(EncoderRNN, self).__init__()</span><br><span class="line">        self.hidden_size = hidden_size</span><br><span class="line"></span><br><span class="line">        self.embedding = nn.Embedding(input_size, hidden_size)</span><br><span class="line">        self.gru = nn.GRU(hidden_size, hidden_size)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, <span class="built_in">input</span>, hidden</span>):</span></span><br><span class="line">        embedded = self.embedding(<span class="built_in">input</span>).view(<span class="number">1</span>, <span class="number">1</span>, -<span class="number">1</span>)</span><br><span class="line">        output = embedded</span><br><span class="line">        output, hidden = self.gru(output, hidden)</span><br><span class="line">        <span class="keyword">return</span> output, hidden</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">initHidden</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="keyword">return</span> torch.zeros(<span class="number">1</span>, <span class="number">1</span>, self.hidden_size, device=device)</span><br></pre>
+
+<p>Encoder的模型结构图如下：</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="NMT%E5%AE%9E%E6%88%98%E7%90%86%E8%A7%A3Attention%E3%80%81Seq2Seq%5Cencoder-network.png" class="lozad post-image"src="NMT%E5%AE%9E%E6%88%98%E7%90%86%E8%A7%A3Attention%E3%80%81Seq2Seq%5Cencoder-network.png"></p>
+<p>不加Attention的Decoder代码如下，有一点不明白就是forward里的relu的作用，如果不加这个激活函数会怎样？梯度消失？爆炸？</p>
+<pre class="highlight"><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DecoderRNN</span>(<span class="params">nn.Module</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, hidden_size, output_size</span>):</span></span><br><span class="line">        <span class="built_in">super</span>(DecoderRNN, self).__init__()</span><br><span class="line">        self.hidden_size = hidden_size</span><br><span class="line"></span><br><span class="line">        <span class="comment"># Embedding 第一个参数，词汇表的大小；第二个参数，词向量的维度</span></span><br><span class="line">        <span class="comment"># 由于Decoder的输出，是从词汇表大小里挑一个，所以 num_embeddings = output_size</span></span><br><span class="line">        <span class="comment"># 本文词向量的维度和隐藏层大小一致，所以 embedding_dim = hidden_size</span></span><br><span class="line">        self.embedding = nn.Embedding(output_size, hidden_size)</span><br><span class="line">        <span class="comment"># GRU这两个参数？？？ 本文两个size都一样，都是hidden_size大小 256</span></span><br><span class="line">        <span class="comment"># input_size =</span></span><br><span class="line">        <span class="comment"># hidden_size =</span></span><br><span class="line">        self.gru = nn.GRU(hidden_size, hidden_size)</span><br><span class="line">        <span class="comment"># Linear 两个参数：in_features, out_features</span></span><br><span class="line">        self.out = nn.Linear(hidden_size, output_size)</span><br><span class="line">        self.softmax = nn.LogSoftmax(dim=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># RNN 系列，输入只有两个</span></span><br><span class="line">    <span class="comment"># input: shape [1, 1]</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, <span class="built_in">input</span>, hidden</span>):</span></span><br><span class="line">        <span class="comment"># embedded shape : [1, 1, 256]</span></span><br><span class="line">        embedded = self.embedding(<span class="built_in">input</span>)</span><br><span class="line">        <span class="comment"># 这一步其实是多此一举</span></span><br><span class="line">        output = embedded.view(<span class="number">1</span>, <span class="number">1</span>, -<span class="number">1</span>)</span><br><span class="line">        <span class="comment"># 非常不明白这为何relu</span></span><br><span class="line">        output = F.relu(output)</span><br><span class="line">        output, hidden = self.gru(output, hidden)</span><br><span class="line">        output = self.out(output[<span class="number">0</span>])</span><br><span class="line">        output = self.softmax(output)</span><br><span class="line">        <span class="keyword">return</span> output, hidden</span><br></pre>
+
+<p>DecoderRNN模型结构图如下：</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="NMT%E5%AE%9E%E6%88%98%E7%90%86%E8%A7%A3Attention%E3%80%81Seq2Seq%5Cdecoder-network.png" class="lozad post-image"src="NMT%E5%AE%9E%E6%88%98%E7%90%86%E8%A7%A3Attention%E3%80%81Seq2Seq%5Cdecoder-network.png"></p>
+<p>正如前面所说，为了解决长句子的翻译效果，本文基于Encoder-Decoder框架加入了Attention机制，这种一般被称为Soft-Attention。尽管本文训练的语料对都不超过10个单词，对比不出加与不加的区别。</p>
+<p>本文真正使用的是AttnDecoderRNN，代码如下：</p>
+<pre class="highlight"><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AttnDecoderRNN</span>(<span class="params">nn.Module</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, hidden_size, output_size, dropout_p=<span class="number">0.1</span>, max_length=MAX_LENGTH</span>):</span></span><br><span class="line">        <span class="built_in">super</span>(AttnDecoderRNN, self).__init__()</span><br><span class="line">        self.hidden_size = hidden_size</span><br><span class="line">        self.output_size = output_size</span><br><span class="line">        self.dropout_p = dropout_p</span><br><span class="line">        self.max_length = max_length</span><br><span class="line"></span><br><span class="line">        self.embedding = nn.Embedding(self.output_size, self.hidden_size)</span><br><span class="line">        self.attn = nn.Linear(self.hidden_size * <span class="number">2</span>, self.max_length)</span><br><span class="line">        self.attn_combine = nn.Linear(self.hidden_size * <span class="number">2</span>, self.hidden_size)</span><br><span class="line">        self.dropout = nn.Dropout(self.dropout_p)</span><br><span class="line">        self.gru = nn.GRU(self.hidden_size, self.hidden_size)</span><br><span class="line">        self.out = nn.Linear(self.hidden_size, self.output_size)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, <span class="built_in">input</span>, hidden, encoder_outputs</span>):</span></span><br><span class="line">        <span class="comment"># embedded shape : [1, 1, 256]</span></span><br><span class="line">        <span class="comment"># hidden shape : [1, 1, 256]</span></span><br><span class="line">        embedded = self.embedding(<span class="built_in">input</span>)</span><br><span class="line">        <span class="comment"># 这一步其实是多此一举</span></span><br><span class="line">        embedded = embedded.view(<span class="number">1</span>, <span class="number">1</span>, -<span class="number">1</span>)</span><br><span class="line">        <span class="comment"># 为啥输入也dropout</span></span><br><span class="line">        embedded = self.dropout(embedded)</span><br><span class="line"></span><br><span class="line">        <span class="comment">#######第一部分：利用Q和K的相似性，计算weights#####</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 两者shape都是 [1, 256]</span></span><br><span class="line">        <span class="comment"># cat到一起变成了 [1, 512]</span></span><br><span class="line">        cat_res = torch.cat((embedded[<span class="number">0</span>], hidden[<span class="number">0</span>]), <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 又来一个全连接层把它打回原形，max_length=10，变成 [1, 10]</span></span><br><span class="line">        attn_res = self.attn(cat_res)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 对行进行归一化</span></span><br><span class="line">        attn_weights = F.softmax(attn_res, dim=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment">#######第二部分：context vector = weights * value#####</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># bmm : batch 矩阵相乘</span></span><br><span class="line">        <span class="comment"># unsqueeze(0) -- 将[1, 10] 变成 [1, 1, 10]</span></span><br><span class="line">        <span class="comment"># [1, 1, 10] 和 [1, 10, 256] 矩阵相乘</span></span><br><span class="line">        <span class="comment"># 得到  [1, 1, 256]</span></span><br><span class="line">        attn_applied = torch.bmm(attn_weights.unsqueeze(<span class="number">0</span>),</span><br><span class="line">                                 encoder_outputs.unsqueeze(<span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">        <span class="comment">### 后面干啥搞不太懂#####</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 又把两个 [1, 256] 拼接到一起， 变成[1, 512]</span></span><br><span class="line">        output = torch.cat((embedded[<span class="number">0</span>], attn_applied[<span class="number">0</span>]), <span class="number">1</span>)</span><br><span class="line">        <span class="comment"># 再来一个全连接层，打回原形  [1, 256]</span></span><br><span class="line">        <span class="comment"># 又unsqueeze变成  [1, 1, 256]</span></span><br><span class="line">        output = self.attn_combine(output).unsqueeze(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">        output = F.relu(output)</span><br><span class="line">        output, hidden = self.gru(output, hidden)</span><br><span class="line"></span><br><span class="line">        output = F.log_softmax(self.out(output[<span class="number">0</span>]), dim=<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> output, hidden, attn_weights</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">initHidden</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="keyword">return</span> torch.zeros(<span class="number">1</span>, <span class="number">1</span>, self.hidden_size, device=device)</span><br></pre>
+
+<p>Attention Decoder 粗略模型结构图如下：</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="NMT%E5%AE%9E%E6%88%98%E7%90%86%E8%A7%A3Attention%E3%80%81Seq2Seq%5C1152PYf.png" class="lozad post-image"src="NMT%E5%AE%9E%E6%88%98%E7%90%86%E8%A7%A3Attention%E3%80%81Seq2Seq%5C1152PYf.png"></p>
+<p>还是很好理解的，Decoder有3个输入，Input（Decoder端输入的单词序列）、Hidden（上一步输出的隐藏状态）、Encoder outputs（Encoder每个timestep输出的output列表）。其中 attention weights是根据Input和Hidden算出来的，然后再和Encoder outputs进行 element-wise product，即对应位置相乘，不同于数学中的点积或者矩阵乘法。关于element-wise product其实很好理解，见下图：</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="NMT%E5%AE%9E%E6%88%98%E7%90%86%E8%A7%A3Attention%E3%80%81Seq2Seq%5Celementwise.png" class="lozad post-image"src="NMT%E5%AE%9E%E6%88%98%E7%90%86%E8%A7%A3Attention%E3%80%81Seq2Seq%5Celementwise.png"></p>
+<p>简单来说，上面就是Attention 的工作方式，具体到整个 Attention Decoder的数据流图，看一下下面这张：</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="NMT%E5%AE%9E%E6%88%98%E7%90%86%E8%A7%A3Attention%E3%80%81Seq2Seq%5Cattention-decoder-network.png" class="lozad post-image"src="NMT%E5%AE%9E%E6%88%98%E7%90%86%E8%A7%A3Attention%E3%80%81Seq2Seq%5Cattention-decoder-network.png"></p>
+<p>通过断点调试，我将每个Tensor的shape都搞明白了（写在上面代码注释里），数学运算也清楚了，但知道怎么计算的了还是不太懂为何要这么设计，有什么理论依据吗？或者说参考哪篇论文实现的吗？比如，下面这几点我就不是很懂：</p>
+<ul>
+<li>为何 attention weights 的计算就是简单的把 input的embedding向量和上一步的bidden向量拼接，然后通过一个全连接层，进行了线性运算，最后softmax归一？？这么简单吗？为什么这样算出的结果就能表示关于Encoder每个timestep的影响程度？</li>
+<li>计算出 attention_weights 和 encoder_outputs 相乘的结果之后，为什么又要和input的embedding向量进行拼接，又经过一个全连接层，线性运算一下，将结果relu一下加入非线性运算？？？这一顿操作又是在干啥？？？</li>
+<li>GRU比LSTM主要好在哪些方面？？？</li>
+</ul>
+<p>后面的就是，把一个个句子转成Tensor的过程，都非常简单，常规的python操作逻辑：</p>
+<pre class="highlight"><span class="line"></span><br><span class="line"><span class="comment"># 把一个句子转换成id列表</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">indexesFromSentence</span>(<span class="params">lang, sentence</span>):</span></span><br><span class="line">    <span class="keyword">return</span> [lang.word2index[word] <span class="keyword">for</span> word <span class="keyword">in</span> sentence.split(<span class="string">&#x27; &#x27;</span>)]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 在最后添加一个EOS结尾符号，并将id列表转为Tensor</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">tensorFromSentence</span>(<span class="params">lang, sentence</span>):</span></span><br><span class="line">    indexes = indexesFromSentence(lang, sentence)</span><br><span class="line">    indexes.append(EOS_token)</span><br><span class="line">    <span class="keyword">return</span> torch.tensor(indexes, dtype=torch.long, device=device).view(-<span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 将每个语料对转成 Tensor形式的二元祖</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">tensorsFromPair</span>(<span class="params">pair</span>):</span></span><br><span class="line">    input_tensor = tensorFromSentence(input_lang, pair[<span class="number">0</span>])</span><br><span class="line">    target_tensor = tensorFromSentence(output_lang, pair[<span class="number">1</span>])</span><br><span class="line">    <span class="keyword">return</span> (input_tensor, target_tensor)</span><br></pre>
+
+
+
+<p><strong>训练部分</strong></p>
+<pre class="highlight"><span class="line"><span class="comment"># 这是一次迭代（iteration），即跑一遍所有数据的训练函数</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">train</span>(<span class="params">input_tensor, target_tensor, encoder, decoder, encoder_optimizer, decoder_optimizer, criterion,</span></span></span><br><span class="line"><span class="params"><span class="function">          max_length=MAX_LENGTH</span>):</span></span><br><span class="line">    encoder_hidden = encoder.initHidden()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 优化器梯度清零</span></span><br><span class="line">    encoder_optimizer.zero_grad()</span><br><span class="line">    decoder_optimizer.zero_grad()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># input_length 和 target_length 分别表示</span></span><br><span class="line">    <span class="comment"># encoder 和 decoder 输入序列单词个数，在下面循环的时候用到</span></span><br><span class="line">    input_length = input_tensor.size(<span class="number">0</span>)</span><br><span class="line">    target_length = target_tensor.size(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># encoder_outputs 初始化是0，长度是ma_length，维度是 encoder 的hidden_size大小</span></span><br><span class="line">    encoder_outputs = torch.zeros(max_length, encoder.hidden_size, device=device)</span><br><span class="line"></span><br><span class="line">    loss = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># encoder循环, 次数是输入句子的长度</span></span><br><span class="line">    <span class="keyword">for</span> ei <span class="keyword">in</span> <span class="built_in">range</span>(input_length):</span><br><span class="line">        encoder_output, encoder_hidden = encoder(</span><br><span class="line">            input_tensor[ei], encoder_hidden)</span><br><span class="line">        <span class="comment"># 这个encoder_outputs 保存每个time_step的output</span></span><br><span class="line">        <span class="comment"># 在后面会用来和attention weights相乘，得到一个context vector</span></span><br><span class="line">        encoder_outputs[ei] = encoder_output[<span class="number">0</span>, <span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Decoder的输入初始化为&lt;SOS&gt;符号，表示开始</span></span><br><span class="line">    decoder_input = torch.tensor([[SOS_token]], device=device)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将encoder的最后一次hidden状态，最为decoder_hidden的初始值</span></span><br><span class="line">    decoder_hidden = encoder_hidden</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 1/2的概率：</span></span><br><span class="line">    <span class="comment"># True: 用target（目标语言）的单词作为decoder的每个输入，这个是从语料对里取出来的</span></span><br><span class="line">    <span class="comment"># False: 用decoder上一个time_step预测出的单词作为decoder的下一个输入</span></span><br><span class="line">    use_teacher_forcing = <span class="literal">True</span> <span class="keyword">if</span> random.random() &lt; teacher_forcing_ratio <span class="keyword">else</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> use_teacher_forcing:</span><br><span class="line">        <span class="comment"># Teacher forcing: Feed the target as the next input</span></span><br><span class="line">        <span class="keyword">for</span> di <span class="keyword">in</span> <span class="built_in">range</span>(target_length):</span><br><span class="line">            decoder_output, decoder_hidden, decoder_attention = decoder(</span><br><span class="line">                decoder_input, decoder_hidden, encoder_outputs)</span><br><span class="line">            loss += criterion(decoder_output, target_tensor[di])</span><br><span class="line">            <span class="comment"># 使用训练语料的目标语言句子的单词作为下一个输入</span></span><br><span class="line">            decoder_input = target_tensor[di]  <span class="comment"># Teacher forcing</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="comment"># Without teacher forcing: use its own predictions as the next input</span></span><br><span class="line">        <span class="keyword">for</span> di <span class="keyword">in</span> <span class="built_in">range</span>(target_length):</span><br><span class="line">            decoder_output, decoder_hidden, decoder_attention = decoder(</span><br><span class="line">                decoder_input, decoder_hidden, encoder_outputs)</span><br><span class="line">            <span class="comment"># topv : softmax后的最大概率数值</span></span><br><span class="line">            <span class="comment"># topi : softmax后最大概率值的位置</span></span><br><span class="line">            <span class="comment"># decoder_output的shape是[1, target_vocab_size]</span></span><br><span class="line">            <span class="comment"># 所以topi 就是词汇表中对应的编号</span></span><br><span class="line">            topv, topi = decoder_output.topk(<span class="number">1</span>)</span><br><span class="line">            <span class="comment"># detach 表示不需要反向传播更新梯度</span></span><br><span class="line">            decoder_input = topi.squeeze().detach()  <span class="comment"># detach from history as input</span></span><br><span class="line"></span><br><span class="line">            loss += criterion(decoder_output, target_tensor[di])</span><br><span class="line">            <span class="keyword">if</span> decoder_input.item() == EOS_token:</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">    loss.backward()</span><br><span class="line"></span><br><span class="line">    encoder_optimizer.step()</span><br><span class="line">    decoder_optimizer.step()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> loss.item() / target_length</span><br></pre>
+
+<p>大体就是这些，带有详细注释的代码已上传到我的<a target="_blank" rel="noopener" href="https://github.com/wbbeyourself/seq2seq_translation_tutorial">github</a>。</p>
+
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://yoursite.com/about">theme-kaze</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://yoursite.com/NMT%E5%AE%9E%E6%88%98%E7%90%86%E8%A7%A3Attention%E3%80%81Seq2Seq/">http://yoursite.com/NMT%E5%AE%9E%E6%88%98%E7%90%86%E8%A7%A3Attention%E3%80%81Seq2Seq/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  <div class="nav-item-prev">
+    <a href="/论文笔记-Neural-Machine-Translation-by-Jointly-Learning-to-Align-and-Translate/" class="nav-link">
+      <i class="iconfont icon-left nav-prev-icon"></i>
+      <div>
+        <div class="nav-label">上一篇</div>
+        
+        <div class="nav-title">[论文笔记] Neural Machine Translation by Jointly Learning to Align and Translate </div>
+        
+      </div>
+    </a>
+  </div>
+  
+  
+  <div class="nav-item-next">
+    <a href="/NLP数据预处理神器nltk/" class="nav-link">
+      <div>
+        <div class="nav-label">下一篇</div>
+        
+        <div class="nav-title">NLP数据预处理神器nltk </div>
+        
+      </div>
+      <i class="iconfont icon-right nav-next-icon"></i>
+    </a>
+  </div>
+  
+</div>
+
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%BB%E5%8A%A1%E7%AE%80%E4%BB%8B"><span class="toc-text">任务简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-text">代码分析</span></a></li></ol>
+</div></main>
+          <aside class="left-column">
+            
+            <div class="card card-author">
+              
+<img src="/img/logo.jpg" class="author-img">
+
+<p class="author-name">theme-kaze</p>
+<p class="author-description">一个专注技术分享的网站</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>17</span>
+    <span>文章</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>1</span>
+    <span>分类</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>27</span>
+    <span>标签</span>
+  </a>
+</div>
+
+            </div>
+            
+            <div class="sticky-tablet">
+  
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%BB%E5%8A%A1%E7%AE%80%E4%BB%8B"><span class="toc-text">任务简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-text">代码分析</span></a></li></ol>
+    </div>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>分类</div>
+  <div class="categories-list">
+    
+      <a href="/categories/自然语言处理">
+        <div class="categories-list-item">
+          自然语言处理
+          <span class="categories-list-item-badge">1</span>
+        </div>
+      </a>
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>热门标签</div>
+  <div class="tags-list">
+    
+    <a href="\tags\Self-Attention" title="Self-Attention"><div class="tags-list-item">Self-Attention</div></a>
+    
+    <a href="\tags\Transformer" title="Transformer"><div class="tags-list-item">Transformer</div></a>
+    
+    <a href="\tags\NMT" title="NMT"><div class="tags-list-item">NMT</div></a>
+    
+    <a href="\tags\Seq2Seq" title="Seq2Seq"><div class="tags-list-item">Seq2Seq</div></a>
+    
+    <a href="\tags\Layer normalize" title="Layer normalize"><div class="tags-list-item">Layer normalize</div></a>
+    
+    <a href="\tags\Residual connection" title="Residual connection"><div class="tags-list-item">Residual connection</div></a>
+    
+    <a href="\tags\Pytorch、NMT" title="Pytorch、NMT"><div class="tags-list-item">Pytorch、NMT</div></a>
+    
+    <a href="\tags\requests" title="requests"><div class="tags-list-item">requests</div></a>
+    
+    <a href="\tags\wordnet" title="wordnet"><div class="tags-list-item">wordnet</div></a>
+    
+    <a href="\tags\nltk" title="nltk"><div class="tags-list-item">nltk</div></a>
+    
+    <a href="\tags\面试" title="面试"><div class="tags-list-item">面试</div></a>
+    
+    <a href="\tags\NMT注意力机制" title="NMT注意力机制"><div class="tags-list-item">NMT注意力机制</div></a>
+    
+    <a href="\tags\最长公共子序列" title="最长公共子序列"><div class="tags-list-item">最长公共子序列</div></a>
+    
+    <a href="\tags\动态规划" title="动态规划"><div class="tags-list-item">动态规划</div></a>
+    
+    <a href="\tags\工具" title="工具"><div class="tags-list-item">工具</div></a>
+    
+    <a href="\tags\BLEU" title="BLEU"><div class="tags-list-item">BLEU</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+          </aside>
+          <aside class="right-column">
+            <div class="sticky-widescreen">
+  
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%BB%E5%8A%A1%E7%AE%80%E4%BB%8B"><span class="toc-text">任务简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-text">代码分析</span></a></li></ol>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>最近文章</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-05-23</div>
+        <a href="/SParC论文解读/"><div class="recent-posts-item-content">SParC Cross-Domain Semantic Parsing in Context 论文解读</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2020-07-21</div>
+        <a href="/RoBERTa一种鲁棒地优化BERT预训练的方法/"><div class="recent-posts-item-content">RoBERTa：一种鲁棒地优化BERT预训练的方法</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2019-09-07</div>
+        <a href="/NLP基础-TF-IDF/"><div class="recent-posts-item-content">NLP基础-TF-IDF</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2019-08-19</div>
+        <a href="/beam-search-简单实现-python/"><div class="recent-posts-item-content">beam search 简单实现(python)</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2020 -
+          
+          2021
+        </span>
+        <a href="/" class="footer-link">theme-kaze demo </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+</footer>
+  <a role="button" id="scrollbutton" class="basebutton" >
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+
+  
+  
+  
+  <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img');
+    var i;
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a');
+      wrapper.setAttribute('data-fslightbox', 'gallery');
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'));
+      wrapper.setAttribute('style', 'width: 100%; display: flex; justify-content: center;');
+      img[i].parentElement.insertBefore(wrapper, img[i]);
+      wrapper.appendChild(img[i]);
+    }
+    refreshFsLightbox();
+  }
+</script>
+<script>loadScript("//cdn.jsdelivr.net/npm/fslightbox@3.1.0/index.min.js", addImgLayout)</script>
+  
+  
+  
+<script src="/js/main.js"></script>
+
+  
+  
+  <script>
+    var addLazyload = function () {
+      var observer = lozad('.lozad', {
+        load: function (el) {
+          el.srcset = el.getAttribute('data-src');
+        },
+        loaded: function (el) {
+          el.classList.add('loaded');
+        }
+      });
+      observer.observe();
+    }
+  </script>
+  <script>loadScript("/js/lib/lozad.min.js", addLazyload)</script>
+  
+  
+</body>
+
+</html>

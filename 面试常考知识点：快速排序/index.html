@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+<meta  lang="zh-CN" >
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <link rel="icon" href="/img/logo.jpg">
+  <title>theme-kaze demo</title>
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_vpj3dq9ceqa.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  
+  <link rel="preload" href="//cdn.jsdelivr.net/npm/fslightbox@3.1.0/index.min.js" as="script">
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  
+  
+  
+<link rel="stylesheet" href="/css/main.css">
+
+  
+  
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_vpj3dq9ceqa.css">
+
+  
+  
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+
+  
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <div class="wrapper">
+    
+    <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="/img/logo.jpg">
+      
+      <span class="navbar-logo-dsc">theme-kaze demo</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">首页 </a>
+    
+    <a href="/archives" class="navbar-menu-item">归档 </a>
+    
+    <a href="/tags" class="navbar-menu-item">标签 </a>
+    
+    <a href="/categories" class="navbar-menu-item">分类 </a>
+    
+    <a href="/about" class="navbar-menu-item">关于 </a>
+    
+    <a href="/links" class="navbar-menu-item">友链 </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+  </div>
+</nav>
+    
+    <div class="section-wrap">
+      <div class="container">
+        <div class="columns">
+          <main class="main-column">
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      面试常考知识点：快速排序
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2019-06-21T01:12:27.000Z" style="display: flex; align-items: center;">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2019-06-21</span>
+    </time>
+    
+    
+    <span class="dot"></span>
+    <span>1.3k 字</span>
+    
+  </div>
+  
+  <div class="post-meta post-show-meta" style="margin-top: -10px;">
+    <div style="display: flex; align-items: center;">
+      <i class="iconfont icon-biaoqian" style="margin-right: 2px; font-size: 1.15rem;"></i>
+      
+      
+        <a href="/tags/面试/" class="post-meta-link">面试</a>
+      
+    </div>
+  </div>
+  
+  </header>
+  <div id="section" class="post-content">
+    <h1 id="快速排序"><a href="#快速排序" class="headerlink" title="快速排序"></a>快速排序</h1><p>中心思想：分治法</p>
+<h2 id="核心问题"><a href="#核心问题" class="headerlink" title="核心问题"></a>核心问题</h2><h3 id="1、基准元素的选择"><a href="#1、基准元素的选择" class="headerlink" title="1、基准元素的选择"></a>1、基准元素的选择</h3><p>方案一：以数组的第一个元素为基准元素</p>
+<p>极端情况：原数组有序，所选的元素刚好是最大/小值，导致每次分治后，数据严重倾斜，效率低下，时间复杂度最差(n^2)</p>
+<p>方案二：随机选一个作为基准元素</p>
+<p>也有极小几率选到数列的最大/小值</p>
+<h3 id="2、元素的移动"><a href="#2、元素的移动" class="headerlink" title="2、元素的移动"></a>2、元素的移动</h3><span id="more"></span>
+
+<p><strong>(1)、挖坑法</strong></p>
+<p>代码如下：</p>
+<pre class="highlight"><span class="line"><span class="keyword">import</span> java.util.Arrays;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">QuickSort</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">quickSort</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> startIndex, <span class="keyword">int</span> endIndex)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 递归结束条件：startIndex大等于endIndex的时候</span></span><br><span class="line">        <span class="keyword">if</span> (startIndex &gt;= endIndex) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 得到基准元素位置</span></span><br><span class="line">        <span class="keyword">int</span> pivotIndex = partition(arr, startIndex, endIndex);</span><br><span class="line">        <span class="comment">// 用分治法递归数列的两部分</span></span><br><span class="line">        quickSort(arr, startIndex, pivotIndex - <span class="number">1</span>);</span><br><span class="line">        quickSort(arr, pivotIndex + <span class="number">1</span>, endIndex);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">partition</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> startIndex, <span class="keyword">int</span> endIndex)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 取第一个位置的元素作为基准元素</span></span><br><span class="line">        <span class="keyword">int</span> pivot = arr[startIndex];</span><br><span class="line">        <span class="keyword">int</span> left = startIndex;</span><br><span class="line">        <span class="keyword">int</span> right = endIndex;</span><br><span class="line">        <span class="comment">// 坑的位置，初始等于pivot的位置</span></span><br><span class="line">        <span class="keyword">int</span> index = startIndex;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//大循环在左右指针重合或者交错时结束</span></span><br><span class="line">        <span class="keyword">while</span> (right &gt;= left) &#123;</span><br><span class="line">            <span class="comment">//right指针从右向左进行比较</span></span><br><span class="line">            <span class="keyword">while</span> (right &gt;= left) &#123;</span><br><span class="line">                <span class="keyword">if</span> (arr[right] &lt; pivot) &#123;</span><br><span class="line">                    arr[left] = arr[right];</span><br><span class="line">                    index = right;</span><br><span class="line">                    left++;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                right--;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//left指针从左向右进行比较</span></span><br><span class="line">            <span class="keyword">while</span> (right &gt;= left) &#123;</span><br><span class="line">                <span class="keyword">if</span> (arr[left] &gt; pivot) &#123;</span><br><span class="line">                    arr[right] = arr[left];</span><br><span class="line">                    index = left;</span><br><span class="line">                    right--;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                left++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        arr[index] = pivot;</span><br><span class="line">        <span class="keyword">return</span> index;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span>[] arr = <span class="keyword">new</span> <span class="keyword">int</span>[]&#123;<span class="number">4</span>, <span class="number">7</span>, <span class="number">6</span>, <span class="number">5</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">8</span>, <span class="number">1</span>&#125;;</span><br><span class="line">        quickSort(arr, <span class="number">0</span>, arr.length - <span class="number">1</span>);</span><br><span class="line">        System.out.println(Arrays.toString(arr));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre>
+
+<p><strong>(2)、指针交换法</strong></p>
+<p>指针交换法与挖坑法的不同在于partition函数的实现，交换次数比挖坑法更少。代码如下：</p>
+<pre class="highlight"><span class="line"><span class="comment">// 参考：https://blog.csdn.net/caofengtao1314/article/details/81978388</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Arrays;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">QuickSort</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">quickSort</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> startIndex, <span class="keyword">int</span> endIndex)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 递归结束条件：startIndex大等于endIndex的时候</span></span><br><span class="line">        <span class="keyword">if</span> (startIndex &gt;= endIndex) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 得到基准元素位置</span></span><br><span class="line">        <span class="keyword">int</span> pivotIndex = partition(arr, startIndex, endIndex);</span><br><span class="line">        <span class="comment">// 根据基准元素，分成两部分递归排序</span></span><br><span class="line">        quickSort(arr, startIndex, pivotIndex - <span class="number">1</span>);</span><br><span class="line">        quickSort(arr, pivotIndex + <span class="number">1</span>, endIndex);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">partition</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> startIndex, <span class="keyword">int</span> endIndex)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 取第一个位置的元素作为基准元素</span></span><br><span class="line">        <span class="keyword">int</span> pivot = arr[startIndex];</span><br><span class="line">        <span class="keyword">int</span> left = startIndex;</span><br><span class="line">        <span class="keyword">int</span> right = endIndex;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (left != right) &#123;</span><br><span class="line">            <span class="comment">//控制right指针比较并左移</span></span><br><span class="line">            <span class="keyword">while</span> (left &lt; right &amp;&amp; arr[right] &gt; pivot) &#123;</span><br><span class="line">                right--;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//控制right指针比较并右移</span></span><br><span class="line">            <span class="keyword">while</span> (left &lt; right &amp;&amp; arr[left] &lt;= pivot) &#123;</span><br><span class="line">                left++;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//交换left和right指向的元素</span></span><br><span class="line">            <span class="keyword">if</span> (left &lt; right) &#123;</span><br><span class="line">                <span class="keyword">int</span> p = arr[left];</span><br><span class="line">                arr[left] = arr[right];</span><br><span class="line">                arr[right] = p;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//pivot和指针重合点交换</span></span><br><span class="line">        <span class="keyword">int</span> p = arr[left];</span><br><span class="line">        arr[left] = arr[startIndex];</span><br><span class="line">        arr[startIndex] = p;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> left;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span>[] arr = <span class="keyword">new</span> <span class="keyword">int</span>[]&#123;<span class="number">4</span>, <span class="number">7</span>, <span class="number">6</span>, <span class="number">5</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">8</span>, <span class="number">1</span>&#125;;</span><br><span class="line">        quickSort(arr, <span class="number">0</span>, arr.length - <span class="number">1</span>);</span><br><span class="line">        System.out.println(Arrays.toString(arr));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre>
+
+
+
+<p>非递归实现（栈）：</p>
+<pre class="highlight"><span class="line"><span class="comment">// 参考：https://blog.csdn.net/caofengtao1314/article/details/81978388</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Arrays;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"><span class="keyword">import</span> java.util.Stack;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">QuickSortWithStack</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">quickSort</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> startIndex, <span class="keyword">int</span> endIndex)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 用一个集合栈来代替递归的函数栈</span></span><br><span class="line">        Stack&lt;Map&lt;String, Integer&gt;&gt; quickSortStack = <span class="keyword">new</span> Stack&lt;&gt;();</span><br><span class="line">        <span class="comment">// 整个数列的起止下标，以哈希的形式入栈</span></span><br><span class="line">        Map rootParam = <span class="keyword">new</span> HashMap();</span><br><span class="line">        rootParam.put(<span class="string">&quot;startIndex&quot;</span>, startIndex);</span><br><span class="line">        rootParam.put(<span class="string">&quot;endIndex&quot;</span>, endIndex);</span><br><span class="line">        quickSortStack.push(rootParam);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 循环结束条件：栈为空时结束</span></span><br><span class="line">        <span class="keyword">while</span> (!quickSortStack.isEmpty()) &#123;</span><br><span class="line">            <span class="comment">// 栈顶元素出栈，得到起止下标</span></span><br><span class="line">            Map&lt;String, Integer&gt; param = quickSortStack.pop();</span><br><span class="line">            <span class="keyword">int</span> start = param.get(<span class="string">&quot;startIndex&quot;</span>);</span><br><span class="line">            <span class="keyword">int</span> end = param.get(<span class="string">&quot;endIndex&quot;</span>);</span><br><span class="line">            <span class="comment">// 得到基准元素位置</span></span><br><span class="line">            <span class="keyword">int</span> pivotIndex = partition(arr, start, end);</span><br><span class="line">            <span class="comment">// 根据基准元素分成两部分, 把每一部分的起止下标入栈</span></span><br><span class="line">            <span class="keyword">if</span> (start &lt; pivotIndex - <span class="number">1</span>) &#123;</span><br><span class="line">                Map&lt;String, Integer&gt; leftParam = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">                leftParam.put(<span class="string">&quot;startIndex&quot;</span>, start);</span><br><span class="line">                leftParam.put(<span class="string">&quot;endIndex&quot;</span>, pivotIndex - <span class="number">1</span>);</span><br><span class="line">                quickSortStack.push(leftParam);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (pivotIndex + <span class="number">1</span> &lt; end) &#123;</span><br><span class="line">                Map&lt;String, Integer&gt; rightParam = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">                rightParam.put(<span class="string">&quot;startIndex&quot;</span>, pivotIndex + <span class="number">1</span>);</span><br><span class="line">                rightParam.put(<span class="string">&quot;endIndex&quot;</span>, end);</span><br><span class="line">                quickSortStack.push(rightParam);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">partition</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> startIndex, <span class="keyword">int</span> endIndex)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 取第一个位置的元素作为基准元素</span></span><br><span class="line">        <span class="keyword">int</span> pivot = arr[startIndex];</span><br><span class="line">        <span class="keyword">int</span> left = startIndex;</span><br><span class="line">        <span class="keyword">int</span> right = endIndex;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (left != right) &#123;</span><br><span class="line">            <span class="comment">//控制right指针比较并左移</span></span><br><span class="line">            <span class="keyword">while</span> (left &lt; right &amp;&amp; arr[right] &gt; pivot) &#123;</span><br><span class="line">                right--;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//控制right指针比较并右移</span></span><br><span class="line">            <span class="keyword">while</span> (left &lt; right &amp;&amp; arr[left] &lt;= pivot) &#123;</span><br><span class="line">                left++;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//交换left和right指向的元素</span></span><br><span class="line">            <span class="keyword">if</span> (left &lt; right) &#123;</span><br><span class="line">                <span class="keyword">int</span> p = arr[left];</span><br><span class="line">                arr[left] = arr[right];</span><br><span class="line">                arr[right] = p;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//pivot和指针重合点交换</span></span><br><span class="line">        <span class="keyword">int</span> p = arr[left];</span><br><span class="line">        arr[left] = arr[startIndex];</span><br><span class="line">        arr[startIndex] = p;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> left;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span>[] arr = <span class="keyword">new</span> <span class="keyword">int</span>[]&#123;<span class="number">4</span>, <span class="number">7</span>, <span class="number">6</span>, <span class="number">5</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">8</span>, <span class="number">1</span>&#125;;</span><br><span class="line">        quickSort(arr, <span class="number">0</span>, arr.length - <span class="number">1</span>);</span><br><span class="line">        System.out.println(Arrays.toString(arr));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre>
+
+
+
+<p>还有python版本的实现：</p>
+<pre class="highlight"><span class="line"><span class="comment"># 快速排序-指针交换法-非递归版本</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">quick_sort</span>(<span class="params">arr, start_index, end_index</span>):</span></span><br><span class="line">    <span class="comment"># arr : [start_index, end_index] 左右闭区间</span></span><br><span class="line">    parameter_stack = [[start_index, end_index]]</span><br><span class="line">    <span class="keyword">while</span> parameter_stack:</span><br><span class="line">        param = parameter_stack.pop()</span><br><span class="line">        s = param[<span class="number">0</span>]</span><br><span class="line">        e = param[<span class="number">1</span>]</span><br><span class="line">        pivot = partition(arr, s, e)</span><br><span class="line">        <span class="comment"># print(arr)</span></span><br><span class="line">        <span class="keyword">if</span> pivot + <span class="number">1</span> &lt; e:</span><br><span class="line">            parameter_stack.append([pivot + <span class="number">1</span>, e])</span><br><span class="line">        <span class="keyword">if</span> pivot - <span class="number">1</span> &gt; s:</span><br><span class="line">            parameter_stack.append([s, pivot - <span class="number">1</span>])</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">partition</span>(<span class="params">arr, start_index, end_index</span>):</span></span><br><span class="line">    left = start_index</span><br><span class="line">    right = end_index</span><br><span class="line">    value = arr[start_index]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> left != right:</span><br><span class="line">        <span class="comment"># 注意这个细节：先从右边开始,就返回left位置</span></span><br><span class="line">        <span class="keyword">while</span> left &lt; right <span class="keyword">and</span> arr[right] &gt; value:</span><br><span class="line">            right -= <span class="number">1</span></span><br><span class="line">        <span class="keyword">while</span> left &lt; right <span class="keyword">and</span> arr[left] &lt;= value:</span><br><span class="line">            left += <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> left &lt; right:</span><br><span class="line">            arr[left], arr[right] = arr[right], arr[left]</span><br><span class="line"></span><br><span class="line">    arr[left], arr[start_index] = arr[start_index], arr[left]</span><br><span class="line">    <span class="keyword">return</span> left</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    arr = [<span class="number">4</span>, <span class="number">7</span>, <span class="number">6</span>, <span class="number">5</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">8</span>, <span class="number">1</span>]</span><br><span class="line">    quick_sort(arr, <span class="number">0</span>, <span class="built_in">len</span>(arr) - <span class="number">1</span>)</span><br><span class="line">    <span class="built_in">print</span>(arr)</span><br></pre>
+
+<p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/caofengtao1314/article/details/81978388">https://blog.csdn.net/caofengtao1314/article/details/81978388</a></p>
+
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://yoursite.com/about">theme-kaze</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://yoursite.com/%E9%9D%A2%E8%AF%95%E5%B8%B8%E8%80%83%E7%9F%A5%E8%AF%86%E7%82%B9%EF%BC%9A%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F/">http://yoursite.com/%E9%9D%A2%E8%AF%95%E5%B8%B8%E8%80%83%E7%9F%A5%E8%AF%86%E7%82%B9%EF%BC%9A%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  <div class="nav-item-prev">
+    <a href="/NLP数据预处理神器nltk/" class="nav-link">
+      <i class="iconfont icon-left nav-prev-icon"></i>
+      <div>
+        <div class="nav-label">上一篇</div>
+        
+        <div class="nav-title">NLP数据预处理神器nltk </div>
+        
+      </div>
+    </a>
+  </div>
+  
+  
+  <div class="nav-item-next">
+    <a href="/OpenNMT运行环境搭建/" class="nav-link">
+      <div>
+        <div class="nav-label">下一篇</div>
+        
+        <div class="nav-title">OpenNMT运行环境搭建 </div>
+        
+      </div>
+      <i class="iconfont icon-right nav-next-icon"></i>
+    </a>
+  </div>
+  
+</div>
+
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F"><span class="toc-text">快速排序</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E9%97%AE%E9%A2%98"><span class="toc-text">核心问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E5%9F%BA%E5%87%86%E5%85%83%E7%B4%A0%E7%9A%84%E9%80%89%E6%8B%A9"><span class="toc-text">1、基准元素的选择</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E5%85%83%E7%B4%A0%E7%9A%84%E7%A7%BB%E5%8A%A8"><span class="toc-text">2、元素的移动</span></a></li></ol></li></ol></li></ol>
+</div></main>
+          <aside class="left-column">
+            
+            <div class="card card-author">
+              
+<img src="/img/logo.jpg" class="author-img">
+
+<p class="author-name">theme-kaze</p>
+<p class="author-description">一个专注技术分享的网站</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>17</span>
+    <span>文章</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>1</span>
+    <span>分类</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>27</span>
+    <span>标签</span>
+  </a>
+</div>
+
+            </div>
+            
+            <div class="sticky-tablet">
+  
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F"><span class="toc-text">快速排序</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E9%97%AE%E9%A2%98"><span class="toc-text">核心问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E5%9F%BA%E5%87%86%E5%85%83%E7%B4%A0%E7%9A%84%E9%80%89%E6%8B%A9"><span class="toc-text">1、基准元素的选择</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E5%85%83%E7%B4%A0%E7%9A%84%E7%A7%BB%E5%8A%A8"><span class="toc-text">2、元素的移动</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>分类</div>
+  <div class="categories-list">
+    
+      <a href="/categories/自然语言处理">
+        <div class="categories-list-item">
+          自然语言处理
+          <span class="categories-list-item-badge">1</span>
+        </div>
+      </a>
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>热门标签</div>
+  <div class="tags-list">
+    
+    <a href="\tags\Self-Attention" title="Self-Attention"><div class="tags-list-item">Self-Attention</div></a>
+    
+    <a href="\tags\Transformer" title="Transformer"><div class="tags-list-item">Transformer</div></a>
+    
+    <a href="\tags\NMT" title="NMT"><div class="tags-list-item">NMT</div></a>
+    
+    <a href="\tags\Seq2Seq" title="Seq2Seq"><div class="tags-list-item">Seq2Seq</div></a>
+    
+    <a href="\tags\Layer normalize" title="Layer normalize"><div class="tags-list-item">Layer normalize</div></a>
+    
+    <a href="\tags\Residual connection" title="Residual connection"><div class="tags-list-item">Residual connection</div></a>
+    
+    <a href="\tags\Pytorch、NMT" title="Pytorch、NMT"><div class="tags-list-item">Pytorch、NMT</div></a>
+    
+    <a href="\tags\requests" title="requests"><div class="tags-list-item">requests</div></a>
+    
+    <a href="\tags\wordnet" title="wordnet"><div class="tags-list-item">wordnet</div></a>
+    
+    <a href="\tags\nltk" title="nltk"><div class="tags-list-item">nltk</div></a>
+    
+    <a href="\tags\面试" title="面试"><div class="tags-list-item">面试</div></a>
+    
+    <a href="\tags\NMT注意力机制" title="NMT注意力机制"><div class="tags-list-item">NMT注意力机制</div></a>
+    
+    <a href="\tags\最长公共子序列" title="最长公共子序列"><div class="tags-list-item">最长公共子序列</div></a>
+    
+    <a href="\tags\动态规划" title="动态规划"><div class="tags-list-item">动态规划</div></a>
+    
+    <a href="\tags\工具" title="工具"><div class="tags-list-item">工具</div></a>
+    
+    <a href="\tags\BLEU" title="BLEU"><div class="tags-list-item">BLEU</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+          </aside>
+          <aside class="right-column">
+            <div class="sticky-widescreen">
+  
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F"><span class="toc-text">快速排序</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E9%97%AE%E9%A2%98"><span class="toc-text">核心问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E5%9F%BA%E5%87%86%E5%85%83%E7%B4%A0%E7%9A%84%E9%80%89%E6%8B%A9"><span class="toc-text">1、基准元素的选择</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E5%85%83%E7%B4%A0%E7%9A%84%E7%A7%BB%E5%8A%A8"><span class="toc-text">2、元素的移动</span></a></li></ol></li></ol></li></ol>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>最近文章</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-05-23</div>
+        <a href="/SParC论文解读/"><div class="recent-posts-item-content">SParC Cross-Domain Semantic Parsing in Context 论文解读</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2020-07-21</div>
+        <a href="/RoBERTa一种鲁棒地优化BERT预训练的方法/"><div class="recent-posts-item-content">RoBERTa：一种鲁棒地优化BERT预训练的方法</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2019-09-07</div>
+        <a href="/NLP基础-TF-IDF/"><div class="recent-posts-item-content">NLP基础-TF-IDF</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2019-08-19</div>
+        <a href="/beam-search-简单实现-python/"><div class="recent-posts-item-content">beam search 简单实现(python)</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2020 -
+          
+          2021
+        </span>
+        <a href="/" class="footer-link">theme-kaze demo </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+</footer>
+  <a role="button" id="scrollbutton" class="basebutton" >
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+
+  
+  
+  
+  <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img');
+    var i;
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a');
+      wrapper.setAttribute('data-fslightbox', 'gallery');
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'));
+      wrapper.setAttribute('style', 'width: 100%; display: flex; justify-content: center;');
+      img[i].parentElement.insertBefore(wrapper, img[i]);
+      wrapper.appendChild(img[i]);
+    }
+    refreshFsLightbox();
+  }
+</script>
+<script>loadScript("//cdn.jsdelivr.net/npm/fslightbox@3.1.0/index.min.js", addImgLayout)</script>
+  
+  
+  
+<script src="/js/main.js"></script>
+
+  
+  
+  <script>
+    var addLazyload = function () {
+      var observer = lozad('.lozad', {
+        load: function (el) {
+          el.srcset = el.getAttribute('data-src');
+        },
+        loaded: function (el) {
+          el.classList.add('loaded');
+        }
+      });
+      observer.observe();
+    }
+  </script>
+  <script>loadScript("/js/lib/lozad.min.js", addLazyload)</script>
+  
+  
+</body>
+
+</html>

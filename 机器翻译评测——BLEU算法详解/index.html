@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html>
+<meta  lang="zh-CN" >
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <link rel="icon" href="/img/logo.jpg">
+  <title>theme-kaze demo</title>
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_vpj3dq9ceqa.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  
+  <link rel="preload" href="//cdn.jsdelivr.net/npm/fslightbox@3.1.0/index.min.js" as="script">
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  
+  
+  
+<link rel="stylesheet" href="/css/main.css">
+
+  
+  
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_vpj3dq9ceqa.css">
+
+  
+  
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+
+  
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <div class="wrapper">
+    
+    <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="/img/logo.jpg">
+      
+      <span class="navbar-logo-dsc">theme-kaze demo</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">首页 </a>
+    
+    <a href="/archives" class="navbar-menu-item">归档 </a>
+    
+    <a href="/tags" class="navbar-menu-item">标签 </a>
+    
+    <a href="/categories" class="navbar-menu-item">分类 </a>
+    
+    <a href="/about" class="navbar-menu-item">关于 </a>
+    
+    <a href="/links" class="navbar-menu-item">友链 </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+  </div>
+</nav>
+    
+    <div class="section-wrap">
+      <div class="container">
+        <div class="columns">
+          <main class="main-column">
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      机器翻译评测——BLEU算法详解
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2019-08-08T06:42:17.000Z" style="display: flex; align-items: center;">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2019-08-08</span>
+    </time>
+    
+    
+    <span class="dot"></span>
+    <span>1.5k 字</span>
+    
+  </div>
+  
+  <div class="post-meta post-show-meta" style="margin-top: -10px;">
+    <div style="display: flex; align-items: center;">
+      <i class="iconfont icon-biaoqian" style="margin-right: 2px; font-size: 1.15rem;"></i>
+      
+      
+        <a href="/tags/NMT/" class="post-meta-link">NMT</a>
+      
+      
+      <span class="dot"></span>
+      
+        <a href="/tags/BLEU/" class="post-meta-link">BLEU</a>
+      
+    </div>
+  </div>
+  
+  </header>
+  <div id="section" class="post-content">
+    <p>转载自：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/by-dream/p/7679284.html">https://www.cnblogs.com/by-dream/p/7679284.html</a></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>随着DL（深度学习）的崛起，NMT（神经机器翻译）的威力日益显现，已经完爆SMT（统计机器翻译）了。任何一个任务都少不了评价指标，MT常用的一个指标就是：<strong>BLEU</strong>。下面就给大家介绍一下。</p>
+<span id="more"></span>
+
+<h2 id="N-gram"><a href="#N-gram" class="headerlink" title="N-gram"></a>N-gram</h2><p>BLEU 采用一种N-gram的匹配规则，原理比较简单，就是比较译文和参考译文之间n组词的相似的一个占比。</p>
+<p>例如：</p>
+<p>　原文：今天天气不错</p>
+<p>　机器译文：It is a nice day today</p>
+<p>　人工译文：Today is a nice day</p>
+<p>如果用1-gram匹配的话：</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="%E6%9C%BA%E5%99%A8%E7%BF%BB%E8%AF%91%E8%AF%84%E6%B5%8B%E2%80%94%E2%80%94BLEU%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3%5C1-gram.png" class="lozad post-image"src="%E6%9C%BA%E5%99%A8%E7%BF%BB%E8%AF%91%E8%AF%84%E6%B5%8B%E2%80%94%E2%80%94BLEU%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3%5C1-gram.png"></p>
+<p>​        可以看到机器译文一共6个词，有5个词语都命中的了参考译文，那么它1-gram的匹配度为 5/6 。</p>
+<p>我们再以3-gram举例：</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="%E6%9C%BA%E5%99%A8%E7%BF%BB%E8%AF%91%E8%AF%84%E6%B5%8B%E2%80%94%E2%80%94BLEU%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3%5C3gram.png" class="lozad post-image"src="%E6%9C%BA%E5%99%A8%E7%BF%BB%E8%AF%91%E8%AF%84%E6%B5%8B%E2%80%94%E2%80%94BLEU%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3%5C3gram.png"></p>
+<p>​        可以看到机器译文一共可以分为四个3-gram的词组，其中有两个可以命中参考译文，那么它3-gram的匹配度为 2/4 。</p>
+<p>​        依次类推，我们可以很容易实现一个程序来遍历计算N-gram的一个匹配度。一般来说1-gram的结果代表了文中有多少个词被单独翻译出来了，因此它反映的是这篇译文的忠实度；而当我们计算2-gram以上时，更多时候结果反映的是译文的流畅度，值越高文章的可读性就越好。</p>
+<h2 id="召回率"><a href="#召回率" class="headerlink" title="召回率"></a>召回率</h2><p>上面所说的方法比较好理解，也比较好实现，但是没有考虑到召回率，举一个非常简单的例子说明：</p>
+<p>　　原文：猫站在地上</p>
+<p>　　机器译文：the the the the </p>
+<p>　　人工译文：The cat is standing on the ground</p>
+<p>​        在计算1-gram的时候，the 都出现在译文中，因此匹配度为4/4 ，但是很明显 the 在人工译文中最多出现的次数只有2次，因此BLEU算法修正了这个值的算法，首先会计算该n-gram在译文中可能出现的最大次数：</p>
+<p>$$<br>Count_{clip} =\min \left( Count, Max_Ref_Count \right)<br>$$</p>
+<p>​        $Count$是N-gram在机器翻译译文中的出现次数，$Max_Ref_Count$是该N-gram在一个参考译文中最大的出现次数，最终统计结果取两者中的较小值。然后在把这个匹配结果除以机器翻译译文的N-gram个数。因此对于上面的例子来说，修正后的1-gram的统计结果就是2/4。</p>
+<p>​        我们将整个要处理的将机器翻译的句子表示为$C_i$，标准答案表示为 $S_i=s_{i1},…s_{im}$（m表示有m个参考答案）。n-grams表示n个单词长度的词组集合，令Wk第k个n-gram。</p>
+<p>　　比如这样的一句话，”I come from china”，<em>第1个2-gram为：I come; 第2个2-gram为：come from; 第3个2-gram为：from china</em>;</p>
+<p>　　$h_k(C_i)$ 表示$w_k$翻译译文$C_i$中出现的次数。</p>
+<p>　　$h_k(S_{ij})$ 表示$w_k$在标准答案$S_{ij}$中出现的次数。</p>
+<p> 　　</p>
+<p>​    综上所述各阶N-gram的精度都可以按照下面这个公式计算：<br>$$<br>P_{n}=\frac{\sum_{i} \sum_{k} \min \left(h_{k}\left(c_{i}\right), \max <em>{j \in m} h</em>{k}\left(s_{i j}\right)\right)}{\sum_{i} \sum_{k} \min \left(h_{k}\left(c_{i}\right)\right)}<br>$$</p>
+<p>$\max <em>{j \in m} h</em>{k}(s_{i j})$表示某n-gram在多条标准答案中出现最多的次数。$\min \left(h_{k}\left(c_{i}\right), \max <em>{j \in m} h</em>{k}\left(s_{i j}\right)\right)$表示取n-gram在翻译译文和标准答案中出现的最小次数。</p>
+<h2 id="惩罚因子"><a href="#惩罚因子" class="headerlink" title="惩罚因子"></a>惩罚因子</h2><p>上面的算法已经足够可以有效的翻译评估了，然而N-gram的匹配度可能会随着句子长度的变短而变好，因此会存在这样一个问题：一个翻译引擎只翻译出了句子中部分句子且翻译的比较准确，那么它的匹配度依然会很高。为了避免这种评分的偏向性，BLEU在最后的评分结果中引入了长度惩罚因子(Brevity Penalty)。</p>
+<p>$$<br>B P=\left{\begin{array}{lll}{1} &amp; {\text { if }} &amp; {l_{c}&gt;l s} \ {e^{1-\frac{l s}{l_{c}}}} &amp; {\text { if }} &amp; {l_{c}&lt;=l_{s}}\end{array}\right.<br>$$</p>
+<p>BP的计算公式如上。$l_c$代表表示机器翻译译文的长度，$l_s$表示参考答案的有效长度，当存在多个参考译文时，选取和翻译译文最接近的长度。当翻译译文长度大于参考译文的长度时，惩罚系数为1，意味着不惩罚，只有机器翻译译文长度小于参考答案才会计算惩罚因子。$BP \in (0,1]$。</p>
+<h2 id="BLEU"><a href="#BLEU" class="headerlink" title="BLEU"></a>BLEU</h2><p>由于各N-gram统计量的精度随着阶数的升高而呈指数形式递减，所以为了平衡各阶统计量的作用，对其采用几何平均形式求平均值然后加权，再乘以长度惩罚因子，得到最后的评价公式：<br>$$<br>B L E U=B P \times \exp \left(\sum_{n=1}^{N} \mathcal{W}<em>{n} \log P</em>{n}\right)<br>$$<br>BLEU的原型系统采用的是均匀加权，即 $W_n = \frac {1}{N}$ 。假设N的上限取值为4，即最多只统计4-gram的精度。</p>
+<p>单个句子的$BLEU \in [0,1]$。0表示最差，1表示最好。</p>
+<h2 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h2><p>译文（Candidate）</p>
+<pre class="highlight"><span class="line">Going to play basketball this afternoon ?</span><br></pre>
+
+<p>参考答案（Reference）</p>
+<pre class="highlight"><span class="line">Going to play basketball in the afternoon ?</span><br></pre>
+
+<p>译文gram长度：7，参考答案gram长度：8。</p>
+<p>先看1-gram，除了this这个单词没有命中，其他都命中了，因此：</p>
+<p>　　P1 = 6/7 = 0.85714…</p>
+<p>其他gram以此类推：</p>
+<p>　　P2 = 4/6 = 0.6666..</p>
+<p>　　P3 = 2/5 = 0.4</p>
+<p>　    P4 = 1/4 = 0.25</p>
+<p>再计算logPn，这里用python自带的：</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="%E6%9C%BA%E5%99%A8%E7%BF%BB%E8%AF%91%E8%AF%84%E6%B5%8B%E2%80%94%E2%80%94BLEU%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3%5Cmathlog.png" class="lozad post-image"src="%E6%9C%BA%E5%99%A8%E7%BF%BB%E8%AF%91%E8%AF%84%E6%B5%8B%E2%80%94%E2%80%94BLEU%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3%5Cmathlog.png"></p>
+<p>∑logPn和为-2.8622 ；再乘以Wn，也就是除以4为 0.7156</p>
+<p>　　BP = e^(1-8/7)  约等于 0.867 </p>
+<p>　　BLEU = 0.867 * e^((P1 + P2 + P3 + P4)/4) = 0.867*0.4889 = 0.4238</p>
+<p>通过计算过程，我们可以看到，<strong>BLEU值其实也就是“改进版的n-gram”加上“过短惩罚因子”</strong>。</p>
+
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://yoursite.com/about">theme-kaze</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://yoursite.com/%E6%9C%BA%E5%99%A8%E7%BF%BB%E8%AF%91%E8%AF%84%E6%B5%8B%E2%80%94%E2%80%94BLEU%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/">http://yoursite.com/%E6%9C%BA%E5%99%A8%E7%BF%BB%E8%AF%91%E8%AF%84%E6%B5%8B%E2%80%94%E2%80%94BLEU%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  <div class="nav-item-prev">
+    <a href="/Seq2Seq中的Beam-Search/" class="nav-link">
+      <i class="iconfont icon-left nav-prev-icon"></i>
+      <div>
+        <div class="nav-label">上一篇</div>
+        
+        <div class="nav-title">Seq2Seq中的Beam Search </div>
+        
+      </div>
+    </a>
+  </div>
+  
+  
+  <div class="nav-item-next">
+    <a href="/Transformer实战/" class="nav-link">
+      <div>
+        <div class="nav-label">下一篇</div>
+        
+        <div class="nav-title">Transformer实战 </div>
+        
+      </div>
+      <i class="iconfont icon-right nav-next-icon"></i>
+    </a>
+  </div>
+  
+</div>
+
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#N-gram"><span class="toc-text">N-gram</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%AC%E5%9B%9E%E7%8E%87"><span class="toc-text">召回率</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%83%A9%E7%BD%9A%E5%9B%A0%E5%AD%90"><span class="toc-text">惩罚因子</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BLEU"><span class="toc-text">BLEU</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E4%BE%8B"><span class="toc-text">实例</span></a></li></ol>
+</div></main>
+          <aside class="left-column">
+            
+            <div class="card card-author">
+              
+<img src="/img/logo.jpg" class="author-img">
+
+<p class="author-name">theme-kaze</p>
+<p class="author-description">一个专注技术分享的网站</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>17</span>
+    <span>文章</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>1</span>
+    <span>分类</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>27</span>
+    <span>标签</span>
+  </a>
+</div>
+
+            </div>
+            
+            <div class="sticky-tablet">
+  
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#N-gram"><span class="toc-text">N-gram</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%AC%E5%9B%9E%E7%8E%87"><span class="toc-text">召回率</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%83%A9%E7%BD%9A%E5%9B%A0%E5%AD%90"><span class="toc-text">惩罚因子</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BLEU"><span class="toc-text">BLEU</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E4%BE%8B"><span class="toc-text">实例</span></a></li></ol>
+    </div>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>分类</div>
+  <div class="categories-list">
+    
+      <a href="/categories/自然语言处理">
+        <div class="categories-list-item">
+          自然语言处理
+          <span class="categories-list-item-badge">1</span>
+        </div>
+      </a>
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>热门标签</div>
+  <div class="tags-list">
+    
+    <a href="\tags\Self-Attention" title="Self-Attention"><div class="tags-list-item">Self-Attention</div></a>
+    
+    <a href="\tags\Transformer" title="Transformer"><div class="tags-list-item">Transformer</div></a>
+    
+    <a href="\tags\NMT" title="NMT"><div class="tags-list-item">NMT</div></a>
+    
+    <a href="\tags\Seq2Seq" title="Seq2Seq"><div class="tags-list-item">Seq2Seq</div></a>
+    
+    <a href="\tags\Layer normalize" title="Layer normalize"><div class="tags-list-item">Layer normalize</div></a>
+    
+    <a href="\tags\Residual connection" title="Residual connection"><div class="tags-list-item">Residual connection</div></a>
+    
+    <a href="\tags\Pytorch、NMT" title="Pytorch、NMT"><div class="tags-list-item">Pytorch、NMT</div></a>
+    
+    <a href="\tags\requests" title="requests"><div class="tags-list-item">requests</div></a>
+    
+    <a href="\tags\wordnet" title="wordnet"><div class="tags-list-item">wordnet</div></a>
+    
+    <a href="\tags\nltk" title="nltk"><div class="tags-list-item">nltk</div></a>
+    
+    <a href="\tags\面试" title="面试"><div class="tags-list-item">面试</div></a>
+    
+    <a href="\tags\NMT注意力机制" title="NMT注意力机制"><div class="tags-list-item">NMT注意力机制</div></a>
+    
+    <a href="\tags\最长公共子序列" title="最长公共子序列"><div class="tags-list-item">最长公共子序列</div></a>
+    
+    <a href="\tags\动态规划" title="动态规划"><div class="tags-list-item">动态规划</div></a>
+    
+    <a href="\tags\工具" title="工具"><div class="tags-list-item">工具</div></a>
+    
+    <a href="\tags\BLEU" title="BLEU"><div class="tags-list-item">BLEU</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+          </aside>
+          <aside class="right-column">
+            <div class="sticky-widescreen">
+  
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#N-gram"><span class="toc-text">N-gram</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%AC%E5%9B%9E%E7%8E%87"><span class="toc-text">召回率</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%83%A9%E7%BD%9A%E5%9B%A0%E5%AD%90"><span class="toc-text">惩罚因子</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BLEU"><span class="toc-text">BLEU</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E4%BE%8B"><span class="toc-text">实例</span></a></li></ol>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>最近文章</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-05-23</div>
+        <a href="/SParC论文解读/"><div class="recent-posts-item-content">SParC Cross-Domain Semantic Parsing in Context 论文解读</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2020-07-21</div>
+        <a href="/RoBERTa一种鲁棒地优化BERT预训练的方法/"><div class="recent-posts-item-content">RoBERTa：一种鲁棒地优化BERT预训练的方法</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2019-09-07</div>
+        <a href="/NLP基础-TF-IDF/"><div class="recent-posts-item-content">NLP基础-TF-IDF</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2019-08-19</div>
+        <a href="/beam-search-简单实现-python/"><div class="recent-posts-item-content">beam search 简单实现(python)</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2020 -
+          
+          2021
+        </span>
+        <a href="/" class="footer-link">theme-kaze demo </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+</footer>
+  <a role="button" id="scrollbutton" class="basebutton" >
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+
+  
+  
+  
+  <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img');
+    var i;
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a');
+      wrapper.setAttribute('data-fslightbox', 'gallery');
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'));
+      wrapper.setAttribute('style', 'width: 100%; display: flex; justify-content: center;');
+      img[i].parentElement.insertBefore(wrapper, img[i]);
+      wrapper.appendChild(img[i]);
+    }
+    refreshFsLightbox();
+  }
+</script>
+<script>loadScript("//cdn.jsdelivr.net/npm/fslightbox@3.1.0/index.min.js", addImgLayout)</script>
+  
+  
+  
+<script src="/js/main.js"></script>
+
+  
+  
+  <script>
+    var addLazyload = function () {
+      var observer = lozad('.lozad', {
+        load: function (el) {
+          el.srcset = el.getAttribute('data-src');
+        },
+        loaded: function (el) {
+          el.classList.add('loaded');
+        }
+      });
+      observer.observe();
+    }
+  </script>
+  <script>loadScript("/js/lib/lozad.min.js", addLazyload)</script>
+  
+  
+</body>
+
+</html>

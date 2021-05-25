@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html>
+<meta  lang="zh-CN" >
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <link rel="icon" href="/img/logo.jpg">
+  <title>theme-kaze demo</title>
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_vpj3dq9ceqa.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  
+  <link rel="preload" href="//cdn.jsdelivr.net/npm/fslightbox@3.1.0/index.min.js" as="script">
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  
+  
+  
+<link rel="stylesheet" href="/css/main.css">
+
+  
+  
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_vpj3dq9ceqa.css">
+
+  
+  
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+
+  
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <div class="wrapper">
+    
+    <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="/img/logo.jpg">
+      
+      <span class="navbar-logo-dsc">theme-kaze demo</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">首页 </a>
+    
+    <a href="/archives" class="navbar-menu-item">归档 </a>
+    
+    <a href="/tags" class="navbar-menu-item">标签 </a>
+    
+    <a href="/categories" class="navbar-menu-item">分类 </a>
+    
+    <a href="/about" class="navbar-menu-item">关于 </a>
+    
+    <a href="/links" class="navbar-menu-item">友链 </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+  </div>
+</nav>
+    
+    <div class="section-wrap">
+      <div class="container">
+        <div class="columns">
+          <main class="main-column">
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      一个英文字符串，它是单词吗？
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2019-07-11T03:30:00.000Z" style="display: flex; align-items: center;">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2019-07-11</span>
+    </time>
+    
+    
+    <span class="dot"></span>
+    <span>1.3k 字</span>
+    
+  </div>
+  
+  <div class="post-meta post-show-meta" style="margin-top: -10px;">
+    <div style="display: flex; align-items: center;">
+      <i class="iconfont icon-biaoqian" style="margin-right: 2px; font-size: 1.15rem;"></i>
+      
+      
+        <a href="/tags/nltk/" class="post-meta-link">nltk</a>
+      
+      
+      <span class="dot"></span>
+      
+        <a href="/tags/wordnet/" class="post-meta-link">wordnet</a>
+      
+      
+      <span class="dot"></span>
+      
+        <a href="/tags/requests/" class="post-meta-link">requests</a>
+      
+    </div>
+  </div>
+  
+  </header>
+  <div id="section" class="post-content">
+    <h1 id="一个英文字符串，它是单词吗？"><a href="#一个英文字符串，它是单词吗？" class="headerlink" title="一个英文字符串，它是单词吗？"></a>一个英文字符串，它是单词吗？</h1><p>如果你的程序需要一个英文词典，而手头没有现成的英文词典，只有大量的英文语料，怎么办？那就自己想构建英文词典呗！</p>
+<h2 id="两个挑战"><a href="#两个挑战" class="headerlink" title="两个挑战"></a>两个挑战</h2><p>那么有两个问题必须解决：</p>
+<ul>
+<li><strong>Q1</strong>: 将单词的各种变体形式还原为原单词，即词形还原（Lemmatization）。如：plays原形play，apples原形apple等。</li>
+<li><strong>Q2</strong>: 语料混杂，需要剔除一些”非词错误”的字符串。</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>环境：python 3.7  </p>
+<p>首先，需要对语料进行 tokenization，这个用nltk工具很好实现。</p>
+<p>在这之前需要先下载一些资源包：</p>
+<pre class="highlight"><span class="line"><span class="keyword">import</span> nltk</span><br><span class="line">nltk.download(<span class="string">&#x27;wordnet&#x27;</span>)</span><br><span class="line">nltk.download(<span class="string">&#x27;punkt&#x27;</span>)</span><br></pre>
+
+<p>这个地方会下载很慢，文件我已经上传到<a target="_blank" rel="noopener" href="https://github.com/wbbeyourself/nlp-tools-tutorial/tree/master/nltk-data">我的github</a>上了，直接下载下来解压放到指定目录下就行，我的文件夹是</p>
+<p><code>C:\Users\dell\AppData\Roaming\nltk_data</code>，你们把dell换成你们的名字就行。</p>
+<p>如下所示。</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="%E9%AA%8C%E8%AF%81%E5%8D%95%E8%AF%8D%E5%90%88%E6%B3%95%E6%80%A7%5Cnltk-data.png" class="lozad post-image"src="%E9%AA%8C%E8%AF%81%E5%8D%95%E8%AF%8D%E5%90%88%E6%B3%95%E6%80%A7%5Cnltk-data.png"></p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="%E9%AA%8C%E8%AF%81%E5%8D%95%E8%AF%8D%E5%90%88%E6%B3%95%E6%80%A7%5Cwordnet.png" class="lozad post-image"src="%E9%AA%8C%E8%AF%81%E5%8D%95%E8%AF%8D%E5%90%88%E6%B3%95%E6%80%A7%5Cwordnet.png"></p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="%E9%AA%8C%E8%AF%81%E5%8D%95%E8%AF%8D%E5%90%88%E6%B3%95%E6%80%A7%5Ctken.png" class="lozad post-image"src="%E9%AA%8C%E8%AF%81%E5%8D%95%E8%AF%8D%E5%90%88%E6%B3%95%E6%80%A7%5Ctken.png"></p>
+<hr>
+<p>预处理：tokenize</p>
+<pre class="highlight"><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">tokenize</span>(<span class="params">filename</span>):</span></span><br><span class="line">    word_set = <span class="built_in">set</span>()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 遍历文件每一行</span></span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> get_lines(filename):</span><br><span class="line">        <span class="comment"># 将每行以句子为单位分开</span></span><br><span class="line">        sents = nltk.sent_tokenize(line)</span><br><span class="line">        <span class="comment"># 遍历每个句子</span></span><br><span class="line">        <span class="keyword">for</span> sent <span class="keyword">in</span> sents:</span><br><span class="line">            <span class="comment"># 先将句子进行tokenize,然后在token之间加空格，最后都转成小写</span></span><br><span class="line">            words = nltk.word_tokenize(sent)</span><br><span class="line">            words = [i.lower() <span class="keyword">for</span> i <span class="keyword">in</span> words <span class="keyword">if</span> is_letters(i)]</span><br><span class="line">            <span class="keyword">for</span> w <span class="keyword">in</span> words:</span><br><span class="line">                word_set.add(w)</span><br><span class="line"></span><br><span class="line">    lines = <span class="built_in">sorted</span>(<span class="built_in">list</span>(word_set))</span><br><span class="line">    lines = [i + <span class="string">&#x27;\n&#x27;</span> <span class="keyword">for</span> i <span class="keyword">in</span> lines]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 用新文件替换原来的文件</span></span><br><span class="line">    overwrite_txt_file(filename, lines)</span><br></pre>
+
+
+
+
+
+<hr>
+<h3 id="Q1-解决方案：lemmatization"><a href="#Q1-解决方案：lemmatization" class="headerlink" title="Q1 解决方案：lemmatization"></a>Q1 解决方案：lemmatization</h3><p>词形还原（Lemmatization）是文本预处理中的重要部分，与词干提取（stemming）很相似。</p>
+<p>简单说来，词形还原就是去掉单词的词缀，提取单词的主干部分，通常提取后的单词会是字典中的单词，不同于词干提取（stemming），提取后的单词不一定会出现在单词中。</p>
+<p>比如，单词“cars”词形还原后的单词为“car”，单词“ate”词形还原后的单词为“eat”。</p>
+<pre class="highlight"><span class="line"><span class="keyword">from</span> nltk.stem <span class="keyword">import</span> WordNetLemmatizer</span><br><span class="line">lemmatizer = WordNetLemmatizer()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lemmatize</span>(<span class="params">filename</span>):</span></span><br><span class="line">    vocab_file = filename</span><br><span class="line">    count = <span class="number">0</span></span><br><span class="line">    vocab_map = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> word <span class="keyword">in</span> get_lines(vocab_file):</span><br><span class="line">        word = word.strip()</span><br><span class="line">        src_word = lemmatizer.lemmatize(word)</span><br><span class="line">        <span class="keyword">if</span> word != src_word:</span><br><span class="line">            <span class="comment"># print(&#x27;%s %s&#x27; % (word, src_word))</span></span><br><span class="line">            count += <span class="number">1</span></span><br><span class="line">            <span class="comment"># print(count)</span></span><br><span class="line">        vocab_map[src_word] = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 用新文件覆盖原来的</span></span><br><span class="line"></span><br><span class="line">    vocab = <span class="built_in">sorted</span>(vocab_map.items(), key=<span class="keyword">lambda</span> x: x[<span class="number">0</span>], reverse=<span class="literal">False</span>)</span><br><span class="line">    lines = [k + <span class="string">&#x27;\n&#x27;</span> <span class="keyword">for</span> k, v <span class="keyword">in</span> vocab]</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;len : &#x27;</span>, <span class="built_in">len</span>(lines))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 用新文件替换原来的文件</span></span><br><span class="line">    overwrite_txt_file(filename, lines)</span><br></pre>
+
+
+
+<h3 id="Q2-解决方案：调用海词api接口"><a href="#Q2-解决方案：调用海词api接口" class="headerlink" title="Q2 解决方案：调用海词api接口"></a>Q2 解决方案：调用海词api接口</h3><p>没错就是这么简单！！！</p>
+<p> Requests库真的是 <code> http for humans</code>，一点都没错，就这么几行代码就实现了我的功能。我发现海词查词的时候，如果输入词在词库中不存在，就会404，或者返回的html源码中，不会包含<code>dict-basic-ul</code>和<code>phonetic</code>这两个字符串，而且这个get请求竟然没有任何限制条件，什么agent、header、cookie乱七八糟的限制都没有。简直天助我也！！！</p>
+<pre class="highlight"><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">is_valid</span>(<span class="params">word</span>):</span></span><br><span class="line">    url = <span class="string">&#x27;http://dict.cn/&#x27;</span> + word</span><br><span class="line">    r = requests.get(url)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># print(r.text)</span></span><br><span class="line">    <span class="comment"># print(r.status_code)</span></span><br><span class="line">    <span class="comment"># print(r.text.find(&#x27;dict-basic-ul&#x27;))</span></span><br><span class="line">    <span class="comment"># print(r.text.find(&#x27;phonetic&#x27;))</span></span><br><span class="line">    <span class="keyword">if</span> r.status_code == <span class="number">200</span>:</span><br><span class="line">        index1 = r.text.find(<span class="string">&#x27;dict-basic-ul&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> index1 &gt;= <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        index2 = r.text.find(<span class="string">&#x27;phonetic&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> index2 &gt;= <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">False</span></span><br></pre>
+
+
+
+<p>同时由于这个api访问是单线程，比较慢，我们的这个测试文件有一万行，为了保存保存中间结果，我用append追加文件的方式，这样不会出现中间出问题，前功尽弃的情况。</p>
+<pre class="highlight"><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">validate</span>(<span class="params">filename</span>):</span></span><br><span class="line">    vocab_file = filename</span><br><span class="line">    tmp_filename = vocab_file + <span class="string">&#x27;.cache&#x27;</span></span><br><span class="line">    words = []</span><br><span class="line">    <span class="keyword">import</span> time</span><br><span class="line">    t0 = time.time()</span><br><span class="line">    count = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> word <span class="keyword">in</span> get_lines(vocab_file):</span><br><span class="line">        word = word.strip()</span><br><span class="line">        <span class="keyword">if</span> is_valid(word):</span><br><span class="line">            count += <span class="number">1</span></span><br><span class="line">            words.append(word + <span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">            <span class="keyword">if</span> count % <span class="number">1000</span> == <span class="number">0</span>:</span><br><span class="line">                <span class="built_in">print</span>(count, word)</span><br><span class="line">                time_cost(t0)</span><br><span class="line">                append_file(tmp_filename, words)</span><br><span class="line">                words = []</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(count)</span><br><span class="line">    time_cost(t0)</span><br><span class="line">    append_file(tmp_filename, words)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 用新文件覆盖原来的</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line">    os.rename(vocab_file, vocab_file + <span class="string">&#x27;.old.&#x27;</span> + datetime2str())</span><br><span class="line">    os.rename(tmp_filename, vocab_file)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;overwrite %s successful!&#x27;</span> % vocab_file)</span><br></pre>
+
+
+
+<h3 id="工具类函数"><a href="#工具类函数" class="headerlink" title="工具类函数"></a>工具类函数</h3><p>上述有些工具类函数，我都放在tool.py 文件里。</p>
+<pre class="highlight"><span class="line"><span class="comment"># 把content列表保存成文本文件</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">save_file</span>(<span class="params">filename, content</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    :param filename: 输出文件名</span></span><br><span class="line"><span class="string">    :param content: 句子列表</span></span><br><span class="line"><span class="string">    :param need_new_line: 如为True, 则需要在每个局子后面加\n；反之，不需要</span></span><br><span class="line"><span class="string">    :return:</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(filename, <span class="string">&#x27;w&#x27;</span>, encoding=<span class="string">&#x27;utf-8&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        f.writelines(content)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;save file %s successful!&#x27;</span> % filename)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 给定文件名，和待保存的字符串列表，用新文件将其覆盖</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">overwrite_txt_file</span>(<span class="params">filename, data</span>):</span></span><br><span class="line">    tmp_filename = filename + <span class="string">&#x27;.swp&#x27;</span></span><br><span class="line">    <span class="keyword">import</span> os</span><br><span class="line">    save_file(tmp_filename, data)</span><br><span class="line">    os.rename(filename, filename + <span class="string">&#x27;.old.&#x27;</span> + datetime2str())</span><br><span class="line">    os.rename(tmp_filename, filename)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;overwrite %s successful!&#x27;</span> % filename)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 读取文件的每一行, 返回列表</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_lines</span>(<span class="params">filename</span>):</span></span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(filename, encoding=<span class="string">&#x27;utf-8&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        <span class="keyword">return</span> f.readlines()</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"><span class="comment"># 判断一个单词是否只含有大小写字母</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">is_letters</span>(<span class="params">word</span>):</span></span><br><span class="line">    <span class="keyword">for</span> c <span class="keyword">in</span> word:</span><br><span class="line">        <span class="keyword">if</span> (c &gt;= <span class="string">&#x27;\u0041&#x27;</span> <span class="keyword">and</span> c &lt;= <span class="string">&#x27;\u005a&#x27;</span>) <span class="keyword">or</span> (c &gt;= <span class="string">&#x27;\u0061&#x27;</span> <span class="keyword">and</span> c &lt;= <span class="string">&#x27;\u007a&#x27;</span>):</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 计算从start到现在花费的时间</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">time_cost</span>(<span class="params">start</span>):</span></span><br><span class="line">    <span class="keyword">import</span> time</span><br><span class="line">    cost = <span class="built_in">int</span>(time.time() - start)</span><br><span class="line">    h = cost // <span class="number">3600</span></span><br><span class="line">    m = (cost % <span class="number">3600</span>) // <span class="number">60</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;&#x27;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;%s : cost %s hours %s mins&#x27;</span> % (datetime2str(), h, m))</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line"><span class="comment"># 将 content_list 追加到filename中</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">append_file</span>(<span class="params">filename, content_list</span>):</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> content_list:</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(filename, <span class="string">&#x27;a+&#x27;</span>, encoding=<span class="string">&#x27;utf-8&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        f.writelines(content_list)</span><br></pre>
+
+
+
+<p>完整代码和数据已放到我的<a target="_blank" rel="noopener" href="https://github.com/wbbeyourself/nlp-tools-tutorial/tree/master/build_dict">github</a>，有任何问题欢迎留言交流。</p>
+
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://yoursite.com/about">theme-kaze</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://yoursite.com/%E9%AA%8C%E8%AF%81%E5%8D%95%E8%AF%8D%E5%90%88%E6%B3%95%E6%80%A7/">http://yoursite.com/%E9%AA%8C%E8%AF%81%E5%8D%95%E8%AF%8D%E5%90%88%E6%B3%95%E6%80%A7/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  <div class="nav-item-prev">
+    <a href="/论文工具/" class="nav-link">
+      <i class="iconfont icon-left nav-prev-icon"></i>
+      <div>
+        <div class="nav-label">上一篇</div>
+        
+        <div class="nav-title">科研工具推荐|节约你80%的时间成本 </div>
+        
+      </div>
+    </a>
+  </div>
+  
+  
+  <div class="nav-item-next">
+    <a href="/论文笔记-Neural-Machine-Translation-by-Jointly-Learning-to-Align-and-Translate/" class="nav-link">
+      <div>
+        <div class="nav-label">下一篇</div>
+        
+        <div class="nav-title">[论文笔记] Neural Machine Translation by Jointly Learning to Align and Translate </div>
+        
+      </div>
+      <i class="iconfont icon-right nav-next-icon"></i>
+    </a>
+  </div>
+  
+</div>
+
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E8%8B%B1%E6%96%87%E5%AD%97%E7%AC%A6%E4%B8%B2%EF%BC%8C%E5%AE%83%E6%98%AF%E5%8D%95%E8%AF%8D%E5%90%97%EF%BC%9F"><span class="toc-text">一个英文字符串，它是单词吗？</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%A4%E4%B8%AA%E6%8C%91%E6%88%98"><span class="toc-text">两个挑战</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-text">解决方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Q1-%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%9Alemmatization"><span class="toc-text">Q1 解决方案：lemmatization</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Q2-%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%9A%E8%B0%83%E7%94%A8%E6%B5%B7%E8%AF%8Dapi%E6%8E%A5%E5%8F%A3"><span class="toc-text">Q2 解决方案：调用海词api接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E5%85%B7%E7%B1%BB%E5%87%BD%E6%95%B0"><span class="toc-text">工具类函数</span></a></li></ol></li></ol></li></ol>
+</div></main>
+          <aside class="left-column">
+            
+            <div class="card card-author">
+              
+<img src="/img/logo.jpg" class="author-img">
+
+<p class="author-name">theme-kaze</p>
+<p class="author-description">一个专注技术分享的网站</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>17</span>
+    <span>文章</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>1</span>
+    <span>分类</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>27</span>
+    <span>标签</span>
+  </a>
+</div>
+
+            </div>
+            
+            <div class="sticky-tablet">
+  
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E8%8B%B1%E6%96%87%E5%AD%97%E7%AC%A6%E4%B8%B2%EF%BC%8C%E5%AE%83%E6%98%AF%E5%8D%95%E8%AF%8D%E5%90%97%EF%BC%9F"><span class="toc-text">一个英文字符串，它是单词吗？</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%A4%E4%B8%AA%E6%8C%91%E6%88%98"><span class="toc-text">两个挑战</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-text">解决方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Q1-%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%9Alemmatization"><span class="toc-text">Q1 解决方案：lemmatization</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Q2-%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%9A%E8%B0%83%E7%94%A8%E6%B5%B7%E8%AF%8Dapi%E6%8E%A5%E5%8F%A3"><span class="toc-text">Q2 解决方案：调用海词api接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E5%85%B7%E7%B1%BB%E5%87%BD%E6%95%B0"><span class="toc-text">工具类函数</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>分类</div>
+  <div class="categories-list">
+    
+      <a href="/categories/自然语言处理">
+        <div class="categories-list-item">
+          自然语言处理
+          <span class="categories-list-item-badge">1</span>
+        </div>
+      </a>
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>热门标签</div>
+  <div class="tags-list">
+    
+    <a href="\tags\Self-Attention" title="Self-Attention"><div class="tags-list-item">Self-Attention</div></a>
+    
+    <a href="\tags\Transformer" title="Transformer"><div class="tags-list-item">Transformer</div></a>
+    
+    <a href="\tags\NMT" title="NMT"><div class="tags-list-item">NMT</div></a>
+    
+    <a href="\tags\Seq2Seq" title="Seq2Seq"><div class="tags-list-item">Seq2Seq</div></a>
+    
+    <a href="\tags\Layer normalize" title="Layer normalize"><div class="tags-list-item">Layer normalize</div></a>
+    
+    <a href="\tags\Residual connection" title="Residual connection"><div class="tags-list-item">Residual connection</div></a>
+    
+    <a href="\tags\Pytorch、NMT" title="Pytorch、NMT"><div class="tags-list-item">Pytorch、NMT</div></a>
+    
+    <a href="\tags\requests" title="requests"><div class="tags-list-item">requests</div></a>
+    
+    <a href="\tags\wordnet" title="wordnet"><div class="tags-list-item">wordnet</div></a>
+    
+    <a href="\tags\nltk" title="nltk"><div class="tags-list-item">nltk</div></a>
+    
+    <a href="\tags\面试" title="面试"><div class="tags-list-item">面试</div></a>
+    
+    <a href="\tags\NMT注意力机制" title="NMT注意力机制"><div class="tags-list-item">NMT注意力机制</div></a>
+    
+    <a href="\tags\最长公共子序列" title="最长公共子序列"><div class="tags-list-item">最长公共子序列</div></a>
+    
+    <a href="\tags\动态规划" title="动态规划"><div class="tags-list-item">动态规划</div></a>
+    
+    <a href="\tags\工具" title="工具"><div class="tags-list-item">工具</div></a>
+    
+    <a href="\tags\BLEU" title="BLEU"><div class="tags-list-item">BLEU</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+          </aside>
+          <aside class="right-column">
+            <div class="sticky-widescreen">
+  
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E8%8B%B1%E6%96%87%E5%AD%97%E7%AC%A6%E4%B8%B2%EF%BC%8C%E5%AE%83%E6%98%AF%E5%8D%95%E8%AF%8D%E5%90%97%EF%BC%9F"><span class="toc-text">一个英文字符串，它是单词吗？</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%A4%E4%B8%AA%E6%8C%91%E6%88%98"><span class="toc-text">两个挑战</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-text">解决方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Q1-%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%9Alemmatization"><span class="toc-text">Q1 解决方案：lemmatization</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Q2-%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%9A%E8%B0%83%E7%94%A8%E6%B5%B7%E8%AF%8Dapi%E6%8E%A5%E5%8F%A3"><span class="toc-text">Q2 解决方案：调用海词api接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E5%85%B7%E7%B1%BB%E5%87%BD%E6%95%B0"><span class="toc-text">工具类函数</span></a></li></ol></li></ol></li></ol>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>最近文章</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-05-23</div>
+        <a href="/SParC论文解读/"><div class="recent-posts-item-content">SParC Cross-Domain Semantic Parsing in Context 论文解读</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2020-07-21</div>
+        <a href="/RoBERTa一种鲁棒地优化BERT预训练的方法/"><div class="recent-posts-item-content">RoBERTa：一种鲁棒地优化BERT预训练的方法</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2019-09-07</div>
+        <a href="/NLP基础-TF-IDF/"><div class="recent-posts-item-content">NLP基础-TF-IDF</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2019-08-19</div>
+        <a href="/beam-search-简单实现-python/"><div class="recent-posts-item-content">beam search 简单实现(python)</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2020 -
+          
+          2021
+        </span>
+        <a href="/" class="footer-link">theme-kaze demo </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+</footer>
+  <a role="button" id="scrollbutton" class="basebutton" >
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+
+  
+  
+  
+  <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img');
+    var i;
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a');
+      wrapper.setAttribute('data-fslightbox', 'gallery');
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'));
+      wrapper.setAttribute('style', 'width: 100%; display: flex; justify-content: center;');
+      img[i].parentElement.insertBefore(wrapper, img[i]);
+      wrapper.appendChild(img[i]);
+    }
+    refreshFsLightbox();
+  }
+</script>
+<script>loadScript("//cdn.jsdelivr.net/npm/fslightbox@3.1.0/index.min.js", addImgLayout)</script>
+  
+  
+  
+<script src="/js/main.js"></script>
+
+  
+  
+  <script>
+    var addLazyload = function () {
+      var observer = lozad('.lozad', {
+        load: function (el) {
+          el.srcset = el.getAttribute('data-src');
+        },
+        loaded: function (el) {
+          el.classList.add('loaded');
+        }
+      });
+      observer.observe();
+    }
+  </script>
+  <script>loadScript("/js/lib/lozad.min.js", addLazyload)</script>
+  
+  
+</body>
+
+</html>

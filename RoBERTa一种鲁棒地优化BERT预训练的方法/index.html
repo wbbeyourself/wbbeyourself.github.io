@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html>
+<meta  lang="zh-CN" >
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <link rel="icon" href="/img/logo.jpg">
+  <title>theme-kaze demo</title>
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_vpj3dq9ceqa.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  
+  <link rel="preload" href="//cdn.jsdelivr.net/npm/fslightbox@3.1.0/index.min.js" as="script">
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  
+  
+  
+<link rel="stylesheet" href="/css/main.css">
+
+  
+  
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_vpj3dq9ceqa.css">
+
+  
+  
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+
+  
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <div class="wrapper">
+    
+    <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="/img/logo.jpg">
+      
+      <span class="navbar-logo-dsc">theme-kaze demo</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">首页 </a>
+    
+    <a href="/archives" class="navbar-menu-item">归档 </a>
+    
+    <a href="/tags" class="navbar-menu-item">标签 </a>
+    
+    <a href="/categories" class="navbar-menu-item">分类 </a>
+    
+    <a href="/about" class="navbar-menu-item">关于 </a>
+    
+    <a href="/links" class="navbar-menu-item">友链 </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+  </div>
+</nav>
+    
+    <div class="section-wrap">
+      <div class="container">
+        <div class="columns">
+          <main class="main-column">
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      RoBERTa：一种鲁棒地优化BERT预训练的方法
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2020-07-21T12:59:41.000Z" style="display: flex; align-items: center;">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2020-07-21</span>
+    </time>
+    
+    
+    <span class="dot"></span>
+    <span>1.6k 字</span>
+    
+  </div>
+  
+  <div class="post-meta post-show-meta" style="margin-top: -10px;">
+    <div style="display: flex; align-items: center;">
+      <i class="iconfont icon-biaoqian" style="margin-right: 2px; font-size: 1.15rem;"></i>
+      
+      
+        <a href="/tags/RoBERTa/" class="post-meta-link">RoBERTa</a>
+      
+      
+      <span class="dot"></span>
+      
+        <a href="/tags/BERT/" class="post-meta-link">BERT</a>
+      
+      
+      <span class="dot"></span>
+      
+        <a href="/tags/NLP/" class="post-meta-link">NLP</a>
+      
+    </div>
+  </div>
+  
+  </header>
+  <div id="section" class="post-content">
+    <blockquote>
+<p>RoBERTa 模型是BERT的改进版，核心：精细调参，舍弃NSP。</p>
+</blockquote>
+<p>[toc]</p>
+<h2 id="1、前言"><a href="#1、前言" class="headerlink" title="1、前言"></a>1、前言</h2><p>本文提出了一种对BERT预训练进行精细调参和调整训练集的方法，用这种方法对BERT进行预训练还能提升性能。</p>
+<p>自训练的方法，诸如 ELMo、GPT、BERT、XLM、XLNet 均带来了很大的性能提升，但很难搞懂究竟是方法的哪些方面对模型性能的提升贡献最大。</p>
+<span id="more"></span>
+
+<p>我们复现了BERT的工作，并对调参和数据集大小的影响进行了细致的评估。</p>
+<p>我们对模型进行了如下修改：</p>
+<ul>
+<li>1、用更大的batch和更多的数据，让模型训练的更久一些；</li>
+<li>2、去掉了 NSP (Next Sentence Prediction) 这个任务；</li>
+<li>3、在更长的序列上进行训练；</li>
+<li>4、动态修改训练数据的MASK机制。</li>
+</ul>
+<p>并且我们提出了一个新的数据集 CC-NEWS 。</p>
+<p>原文链接：<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1907.11692.pdf">https://arxiv.org/pdf/1907.11692.pdf</a><br>Github: <a target="_blank" rel="noopener" href="https://github.com/pytorch/fairseq">https://github.com/pytorch/fairseq</a></p>
+<h2 id="2、背景"><a href="#2、背景" class="headerlink" title="2、背景"></a>2、背景</h2><p>本节主要回顾 BERT 预训练的一些参数设置和训练目标，为引出后面的创新点作铺垫。</p>
+<p>BERT 的输入：两个序列拼接到一起，并用两种特殊符号分隔，如：</p>
+<p>其中 ，$T$就是BERT训练是输入序列的最大长度。</p>
+<p>BERT 首先是用大规模无标注的数据进行预训练，然后再用有标注的数据在特定任务上进行精调。</p>
+<p>BERT 模型结构：L 层Transformer，A 个自注意力机制头，隐层向量维度为 H。</p>
+<p>BERT 两个训练目标：</p>
+<ul>
+<li>**Masked Language Model (MLM)**：从输入的序列里里选出15%的token，对其进行 MASK（广义的MASK，即80%替换成 [MASK] 符号，10% 随机替换成词表里的词汇，10% 保持不变）。注意：在BERT最早提出的代码实现上，是最开始对数据就进行了 MASK 替换，然后给模型进行多次迭代训练。</li>
+<li>**Next Sentence Prediction (NSP)**：这是一个二分类任务，就是判断输入的两个句子/片段在原文本中是否为前者的下一个句子。NSP任务是为自然语言推理任务设计的，加入NSP训练目标可以提升下游推理任务性能。</li>
+</ul>
+<p>数据集，一共16 GB：</p>
+<ul>
+<li>BookCorpus</li>
+<li>English Wikipedia</li>
+</ul>
+<h2 id="3、实验"><a href="#3、实验" class="headerlink" title="3、实验"></a>3、实验</h2><p>关于数据，大量研究探讨了使用更多、更多元(差异性更大)的数据来进行提升BERT的性能。</p>
+<h3 id="3-1-静态-VS-动态-Masking"><a href="#3-1-静态-VS-动态-Masking" class="headerlink" title="3.1 静态 VS 动态 Masking"></a>3.1 静态 VS 动态 Masking</h3><p>本文对于BERT的MASK方式做了修改，如下：</p>
+<ul>
+<li>reference (BERT 原始的MASK方式) : 在预处理阶段进行MASK替换。</li>
+<li>static：在预处理阶段，将原始数据拷贝10份，对每个句子都进行MASK，这样同一个句子就有了10种不同的MASK方式。</li>
+<li>dynamic：每次将序列输入模型前动态地进行MASK，这样每次MASK都不一样。</li>
+</ul>
+<p>下面是实验结果对比：</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="https://cdn.jsdelivr.net/gh/wbbeyourself/tuchuang@master/img/dynamic-masking.png" class="lozad post-image"src="https://cdn.jsdelivr.net/gh/wbbeyourself/tuchuang@master/img/dynamic-masking.png"></p>
+<p>从上面实验结果看出，static与reference的效果差不多，dynamic在性能上稍微有一点提升。本文接下来均采用dynamic的MASK方式。</p>
+<p><strong>结论：动态MASK比静态MASK效果好</strong>。</p>
+<h3 id="3-2-输入形式与NSP任务"><a href="#3-2-输入形式与NSP任务" class="headerlink" title="3.2 输入形式与NSP任务"></a>3.2 输入形式与NSP任务</h3><p>在原始的BERT训练步骤中，输入模型的两个句子会被简单拼接在一起，它们50%的概率是来自同一文本的相邻句子，50%来自不同的文本，即NSP任务的正负样本比例为1:1。</p>
+<p>之前的研究表明，如果去掉NSP任务，BERT模型在QNLI，MNLI和SQuAD 1.1 性能会出现明显的下降。</p>
+<p>于是本文对于NSP存在的必要性进行了对比实验：</p>
+<ul>
+<li>Segment-Pair + NSP：原始BERT的做法，采用来自相同或不同的文本片段对+NSP loss的训练方式。这里的文本片段可能会包含多个句子。</li>
+<li>Sentence-Pair + NSP：这里是采用句子对，为了和使用文本片段方式在一个batch内的token数量相同，这里采用了更大的batch size。</li>
+<li>Full-Sentences：去掉了NSP，从一个或多个文档里提取连续的句子，并保持长度不超过512。如果当前文档长度不足512，就从下一个文档继续采集，并在两者分界处加一个 [SEP] 分隔。</li>
+<li>Doc-Sentences：也去掉了NSP，与Full-Sentences模式不一样的就是不跨文档，即单文档。</li>
+</ul>
+<p>结果如下：</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="https://cdn.jsdelivr.net/gh/wbbeyourself/tuchuang@master/img/nsp.png" class="lozad post-image"src="https://cdn.jsdelivr.net/gh/wbbeyourself/tuchuang@master/img/nsp.png"></p>
+<p>可以看到，使用句子对（Sentence-Pair）时，模型性能下降了，可能是因为模型学不到长距离依赖，导致测试集中长文本上效果会下降。Doc-Sentences （去掉NSP）相比原始BERT的Segment-Pair (NSP)的性能要好那么一点点；同时也比Full-Sentences好一点点。这说明去掉NSP其实也可以，并且单文档的 效果比多文档好。</p>
+<p><strong>结论：去掉NSP训练目标并不会降低BERT性能。</strong></p>
+<h3 id="3-3-更大的batch-size"><a href="#3-3-更大的batch-size" class="headerlink" title="3.3 更大的batch_size"></a>3.3 更大的batch_size</h3><p><strong>用更大的batch_size进行训练可以提升模型性能吗？可以。</strong>当然这个前提是你的GPU有足够的显存。</p>
+<p>实验结果如下：</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="https://cdn.jsdelivr.net/gh/wbbeyourself/tuchuang@master/img/batch-size.png" class="lozad post-image"src="https://cdn.jsdelivr.net/gh/wbbeyourself/tuchuang@master/img/batch-size.png"></p>
+<p>bsz是batch_size，当从256提升到2K时，ppl（MLM 的困惑度，越低说明模型学的越好）降低了，在推理（MNLI-m）和情感分析（SST-2）上性能都提升了。</p>
+<p><strong>结论：batch_size可以设得更大（2K、8K），模型性能没什么影响。</strong></p>
+<h3 id="3-4-更大的BPE词汇表"><a href="#3-4-更大的BPE词汇表" class="headerlink" title="3.4 更大的BPE词汇表"></a>3.4 更大的BPE词汇表</h3><p>原始BERT的词汇表大小是30K，本文增加到了50K。</p>
+<h2 id="4、总结"><a href="#4、总结" class="headerlink" title="4、总结"></a>4、总结</h2><p>RoBERTa 这篇论文的主要创新点如下：</p>
+<ul>
+<li>丢弃NSP，效果更好；</li>
+<li>动态改变MASK策略，把数据复制10份，然后统一进行随机MASK；</li>
+<li>对学习率的峰值和warm-up更新步数作出调整；</li>
+<li>在更长的序列上训练：不对序列进行截断，使用全长度序列。</li>
+</ul>
+<h2 id="5、使用"><a href="#5、使用" class="headerlink" title="5、使用"></a>5、使用</h2><p>对于RoBERTa的使用，其实和BERT一模一样，把别人预训练好的下载下来，替换原来下载的BERT模型即可。<br>中文 RoBERTa训练模型可以从这里下载，哈工大的大佬们已经帮我们训练好了，tensorflow、pytorch版的都有：</p>
+<p>Github: <a target="_blank" rel="noopener" href="https://github.com/ymcui/Chinese-BERT-wwm#%E4%B8%AD%E6%96%87%E6%A8%A1%E5%9E%8B%E4%B8%8B%E8%BD%BD">Chinese-BERT-wwm</a></p>
+<h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><p>本人才疏学浅，以上解读仅供参考，更多精彩内容欢迎关注我的个人公众号 【<strong>AI分享者</strong>】。</p>
+
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://yoursite.com/about">theme-kaze</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://yoursite.com/RoBERTa%E4%B8%80%E7%A7%8D%E9%B2%81%E6%A3%92%E5%9C%B0%E4%BC%98%E5%8C%96BERT%E9%A2%84%E8%AE%AD%E7%BB%83%E7%9A%84%E6%96%B9%E6%B3%95/">http://yoursite.com/RoBERTa%E4%B8%80%E7%A7%8D%E9%B2%81%E6%A3%92%E5%9C%B0%E4%BC%98%E5%8C%96BERT%E9%A2%84%E8%AE%AD%E7%BB%83%E7%9A%84%E6%96%B9%E6%B3%95/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  <div class="nav-item-prev">
+    <a href="/SParC论文解读/" class="nav-link">
+      <i class="iconfont icon-left nav-prev-icon"></i>
+      <div>
+        <div class="nav-label">上一篇</div>
+        
+        <div class="nav-title">SParC Cross-Domain Semantic Parsing in Context 论文解读 </div>
+        
+      </div>
+    </a>
+  </div>
+  
+  
+  <div class="nav-item-next">
+    <a href="/NLP基础-TF-IDF/" class="nav-link">
+      <div>
+        <div class="nav-label">下一篇</div>
+        
+        <div class="nav-title">NLP基础-TF-IDF </div>
+        
+      </div>
+      <i class="iconfont icon-right nav-next-icon"></i>
+    </a>
+  </div>
+  
+</div>
+
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-text">1、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E8%83%8C%E6%99%AF"><span class="toc-text">2、背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E5%AE%9E%E9%AA%8C"><span class="toc-text">3、实验</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E9%9D%99%E6%80%81-VS-%E5%8A%A8%E6%80%81-Masking"><span class="toc-text">3.1 静态 VS 动态 Masking</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E8%BE%93%E5%85%A5%E5%BD%A2%E5%BC%8F%E4%B8%8ENSP%E4%BB%BB%E5%8A%A1"><span class="toc-text">3.2 输入形式与NSP任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E6%9B%B4%E5%A4%A7%E7%9A%84batch-size"><span class="toc-text">3.3 更大的batch_size</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-%E6%9B%B4%E5%A4%A7%E7%9A%84BPE%E8%AF%8D%E6%B1%87%E8%A1%A8"><span class="toc-text">3.4 更大的BPE词汇表</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-text">4、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81%E4%BD%BF%E7%94%A8"><span class="toc-text">5、使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%80%E5%90%8E"><span class="toc-text">最后</span></a></li></ol>
+</div></main>
+          <aside class="left-column">
+            
+            <div class="card card-author">
+              
+<img src="/img/logo.jpg" class="author-img">
+
+<p class="author-name">theme-kaze</p>
+<p class="author-description">一个专注技术分享的网站</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>17</span>
+    <span>文章</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>1</span>
+    <span>分类</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>27</span>
+    <span>标签</span>
+  </a>
+</div>
+
+            </div>
+            
+            <div class="sticky-tablet">
+  
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-text">1、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E8%83%8C%E6%99%AF"><span class="toc-text">2、背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E5%AE%9E%E9%AA%8C"><span class="toc-text">3、实验</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E9%9D%99%E6%80%81-VS-%E5%8A%A8%E6%80%81-Masking"><span class="toc-text">3.1 静态 VS 动态 Masking</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E8%BE%93%E5%85%A5%E5%BD%A2%E5%BC%8F%E4%B8%8ENSP%E4%BB%BB%E5%8A%A1"><span class="toc-text">3.2 输入形式与NSP任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E6%9B%B4%E5%A4%A7%E7%9A%84batch-size"><span class="toc-text">3.3 更大的batch_size</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-%E6%9B%B4%E5%A4%A7%E7%9A%84BPE%E8%AF%8D%E6%B1%87%E8%A1%A8"><span class="toc-text">3.4 更大的BPE词汇表</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-text">4、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81%E4%BD%BF%E7%94%A8"><span class="toc-text">5、使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%80%E5%90%8E"><span class="toc-text">最后</span></a></li></ol>
+    </div>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>分类</div>
+  <div class="categories-list">
+    
+      <a href="/categories/自然语言处理">
+        <div class="categories-list-item">
+          自然语言处理
+          <span class="categories-list-item-badge">1</span>
+        </div>
+      </a>
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>热门标签</div>
+  <div class="tags-list">
+    
+    <a href="\tags\Self-Attention" title="Self-Attention"><div class="tags-list-item">Self-Attention</div></a>
+    
+    <a href="\tags\Transformer" title="Transformer"><div class="tags-list-item">Transformer</div></a>
+    
+    <a href="\tags\NMT" title="NMT"><div class="tags-list-item">NMT</div></a>
+    
+    <a href="\tags\Seq2Seq" title="Seq2Seq"><div class="tags-list-item">Seq2Seq</div></a>
+    
+    <a href="\tags\Layer normalize" title="Layer normalize"><div class="tags-list-item">Layer normalize</div></a>
+    
+    <a href="\tags\Residual connection" title="Residual connection"><div class="tags-list-item">Residual connection</div></a>
+    
+    <a href="\tags\Pytorch、NMT" title="Pytorch、NMT"><div class="tags-list-item">Pytorch、NMT</div></a>
+    
+    <a href="\tags\requests" title="requests"><div class="tags-list-item">requests</div></a>
+    
+    <a href="\tags\wordnet" title="wordnet"><div class="tags-list-item">wordnet</div></a>
+    
+    <a href="\tags\nltk" title="nltk"><div class="tags-list-item">nltk</div></a>
+    
+    <a href="\tags\面试" title="面试"><div class="tags-list-item">面试</div></a>
+    
+    <a href="\tags\NMT注意力机制" title="NMT注意力机制"><div class="tags-list-item">NMT注意力机制</div></a>
+    
+    <a href="\tags\最长公共子序列" title="最长公共子序列"><div class="tags-list-item">最长公共子序列</div></a>
+    
+    <a href="\tags\动态规划" title="动态规划"><div class="tags-list-item">动态规划</div></a>
+    
+    <a href="\tags\工具" title="工具"><div class="tags-list-item">工具</div></a>
+    
+    <a href="\tags\BLEU" title="BLEU"><div class="tags-list-item">BLEU</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+          </aside>
+          <aside class="right-column">
+            <div class="sticky-widescreen">
+  
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-text">1、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E8%83%8C%E6%99%AF"><span class="toc-text">2、背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E5%AE%9E%E9%AA%8C"><span class="toc-text">3、实验</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E9%9D%99%E6%80%81-VS-%E5%8A%A8%E6%80%81-Masking"><span class="toc-text">3.1 静态 VS 动态 Masking</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E8%BE%93%E5%85%A5%E5%BD%A2%E5%BC%8F%E4%B8%8ENSP%E4%BB%BB%E5%8A%A1"><span class="toc-text">3.2 输入形式与NSP任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E6%9B%B4%E5%A4%A7%E7%9A%84batch-size"><span class="toc-text">3.3 更大的batch_size</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-%E6%9B%B4%E5%A4%A7%E7%9A%84BPE%E8%AF%8D%E6%B1%87%E8%A1%A8"><span class="toc-text">3.4 更大的BPE词汇表</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-text">4、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81%E4%BD%BF%E7%94%A8"><span class="toc-text">5、使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%80%E5%90%8E"><span class="toc-text">最后</span></a></li></ol>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>最近文章</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-05-23</div>
+        <a href="/SParC论文解读/"><div class="recent-posts-item-content">SParC Cross-Domain Semantic Parsing in Context 论文解读</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2020-07-21</div>
+        <a href="/RoBERTa一种鲁棒地优化BERT预训练的方法/"><div class="recent-posts-item-content">RoBERTa：一种鲁棒地优化BERT预训练的方法</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2019-09-07</div>
+        <a href="/NLP基础-TF-IDF/"><div class="recent-posts-item-content">NLP基础-TF-IDF</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2019-08-19</div>
+        <a href="/beam-search-简单实现-python/"><div class="recent-posts-item-content">beam search 简单实现(python)</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2020 -
+          
+          2021
+        </span>
+        <a href="/" class="footer-link">theme-kaze demo </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+</footer>
+  <a role="button" id="scrollbutton" class="basebutton" >
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+
+  
+  
+  
+  <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img');
+    var i;
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a');
+      wrapper.setAttribute('data-fslightbox', 'gallery');
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'));
+      wrapper.setAttribute('style', 'width: 100%; display: flex; justify-content: center;');
+      img[i].parentElement.insertBefore(wrapper, img[i]);
+      wrapper.appendChild(img[i]);
+    }
+    refreshFsLightbox();
+  }
+</script>
+<script>loadScript("//cdn.jsdelivr.net/npm/fslightbox@3.1.0/index.min.js", addImgLayout)</script>
+  
+  
+  
+<script src="/js/main.js"></script>
+
+  
+  
+  <script>
+    var addLazyload = function () {
+      var observer = lozad('.lozad', {
+        load: function (el) {
+          el.srcset = el.getAttribute('data-src');
+        },
+        loaded: function (el) {
+          el.classList.add('loaded');
+        }
+      });
+      observer.observe();
+    }
+  </script>
+  <script>loadScript("/js/lib/lozad.min.js", addLazyload)</script>
+  
+  
+</body>
+
+</html>
